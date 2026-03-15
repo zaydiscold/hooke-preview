@@ -64,6 +64,16 @@ class GenomicResult(BaseModel):
     top_tissue: Optional[str] = None
     expression_direction: Optional[str] = None
     quantile_score: Optional[float] = None
+    protein_name: Optional[str] = None
+    uniprot_accession: Optional[str] = None
+    structure_model_id: Optional[str] = None
+    structure_source: Optional[str] = None
+    structure_source_url: Optional[str] = None
+    structure_pdb_url: Optional[str] = None
+    structure_cif_url: Optional[str] = None
+    structure_pae_url: Optional[str] = None
+    structure_pae_image_url: Optional[str] = None
+    structure_confidence: Optional[float] = None
     interpretation: str
 
 
@@ -112,4 +122,3 @@ class PipelineResult(BaseModel):
     genomic: Optional[GenomicResult] = None
     analysis: Optional[DeepAnalysis] = None
     brief: ResearchBrief
-

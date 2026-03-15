@@ -1,35 +1,59 @@
 # Hooke
 
-Hooke is a FastAPI research app for hard-science questions. It combines
-literature retrieval, optional genomic follow-up, and a streaming investigation
-UI that produces a concise research brief with source-backed findings.
+![GitHub last commit](https://img.shields.io/github/last-commit/zaydiscold/hooke-preview)
+![GitHub Repo stars](https://img.shields.io/github/stars/zaydiscold/hooke-preview?style=flat)
+![Status](https://img.shields.io/badge/status-preview-475569)
+![Python](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/backend-FastAPI-009688?logo=fastapi&logoColor=white)
+![Frontend](https://img.shields.io/badge/frontend-HTML%2FCSS%2FJS-f59e0b)
+![Streaming](https://img.shields.io/badge/streaming-SSE-0f172a)
 
-## About
+Hooke is an agent-orchestrated research assistant for hard-science questions.
+It runs a FastAPI backend, retrieves evidence from scientific and web sources,
+optionally adds genomic follow-up, and returns a citation-grounded research
+brief in a streaming interface.
 
-Hooke is built for questions that need more than a quick search result. You
-submit a scientific question, Hooke classifies the request, gathers evidence
-from multiple research sources, and returns a brief that highlights key
-findings, open gaps, and a concrete next experiment.
+## Overview
 
-## Features
+This repository contains a local research workflow for questions that need
+source collection, synthesis, and explicit next-step reasoning. A user submits
+a question, Hooke classifies the request into one of three investigation modes,
+runs the relevant agents, and streams both intermediate logs and the final
+brief to the browser.
 
-- Literature retrieval from PubMed, Semantic Scholar, and Tavily
-- Three investigation modes for literature-only, parallel genomic follow-up,
-  and literature-first gene discovery
-- Server-sent event streaming for live agent logs and final brief delivery
-- AlphaGenome integration with an Ensembl-based fallback path
-- Brutalist single-page interface for fast demos and local research workflows
+## What the app does
 
-## Tech stack
+Hooke provides these capabilities:
 
-Hooke uses FastAPI for the backend, a lightweight vanilla HTML frontend for the
-UI, and OpenAI-compatible providers for orchestration and synthesis calls.
-Scientific retrieval and enrichment are handled through PubMed, Semantic
-Scholar, Tavily, Ensembl, and AlphaGenome.
+- Retrieves literature from PubMed, Semantic Scholar, Tavily, OpenAlex, and
+  arXiv through the literature pipeline.
+- Selects among three investigation modes: literature-only, parallel genomic
+  follow-up, or literature-first gene discovery followed by genomic analysis.
+- Streams agent progress and final output to the frontend through server-sent
+  events.
+- Uses AlphaGenome when available and falls back to Ensembl-based genomic
+  interpretation when needed.
+- Produces a structured research brief with findings, research gaps, proposed
+  experiments, and citations.
+- Generates compact lucky-mode starter queries for exploratory research.
 
-## Getting started
+## Architecture
 
-Start from the project root and install the Python dependencies.
+The application is split into a small number of focused components:
+
+- `main.py`: FastAPI entrypoint, static file serving, lucky-query handling, and
+  SSE endpoints.
+- `orchestrator.py`: query classification, mode routing, and pipeline control.
+- `agents/literature.py`: source retrieval, filtering, and paper analysis.
+- `agents/genomic.py`: AlphaGenome and Ensembl-backed genomic analysis.
+- `agents/synthesis.py`: brief generation and JSON normalization.
+- `static/index.html`: single-page interface for queries, logs, and research
+  briefs.
+- `health_check.py`: provider and API connectivity checks.
+
+## Requirements
+
+Set up the app from the project root:
 
 ```bash
 python3 -m venv .venv
@@ -38,59 +62,51 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Add your API keys to `.env` before you run the app.
-
-## Environment variables
-
-The app expects these values in `.env`:
+The environment file must define these variables:
 
 - `NEBIUS_API_KEY`
 - `OPENROUTER_API_KEY`
 - `TAVILY_API_KEY`
 - `GOOGLE_API_KEY`
-- `SEMANTIC_SCHOLAR_API_KEY` for higher rate limits
+- `SEMANTIC_SCHOLAR_API_KEY` for higher Semantic Scholar rate limits
 - `PUBMED_EMAIL`
 
 ## Run locally
 
-Launch the server with Uvicorn.
+Start the development server with Uvicorn:
 
 ```bash
 uvicorn main:app --reload --port 8000
 ```
 
-Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.
+Then open [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
 ## Health check
 
-Run the provider check before a demo or local test session.
+Run the connectivity check before a demo or local test session:
 
 ```bash
 python3 health_check.py
 ```
 
-This reports whether the required providers are configured and reachable.
+This script verifies whether the configured providers are reachable.
 
-## Example prompts
+## Example questions
 
-1. How does Ozempic actually work at the molecular level and why does it cause
+These prompts match the current demo flow:
+
+1. How does Ozempic actually work at the molecular level, and why does it cause
    muscle loss?
-2. What tissues is the LCT gene most active in and why can some adults digest
-   milk while others cannot?
-3. Why do some people get severe kidney disease and what genes are involved?
-4. What makes some cancer tumors resistant to immunotherapy?
+2. What tissues is the `LCT` gene most active in, and why can some adults
+   digest milk while others cannot?
+3. Why do some people get severe kidney disease, and what genes are involved?
+4. What makes some cancer tumors resistant to PD-1 or PD-L1 immunotherapy?
 
-## Project structure
+## Operational notes
 
-- `main.py`: FastAPI app, static file serving, and SSE endpoints
-- `orchestrator.py`: query classification, deep analysis, and pipeline routing
-- `agents/`: literature, genomic, and synthesis agent logic
-- `static/index.html`: frontend interface
-- `health_check.py`: provider connectivity checks
-
-## Notes
+Keep these constraints in mind when you run the app:
 
 - Semantic Scholar can rate-limit unauthenticated requests.
-- If AlphaGenome is unavailable, Hooke falls back to Ensembl-based genomic
-  interpretation.
-- Generated cache files are excluded from git and stay local.
+- AlphaGenome is optional; Hooke falls back to Ensembl-based interpretation if
+  AlphaGenome is unavailable.
+- Generated cache files remain local and are excluded from git.

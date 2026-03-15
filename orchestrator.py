@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from typing import Any, Awaitable, Callable
 
 from agents import run_genomic_agent, run_literature_agent, synthesize_brief
-from config import get_fast_client, settings
+from config import get_nebius_client, get_openrouter_client, settings
 from schemas import (
     AgentEvent,
     AnalyzedPaper,
@@ -48,32 +48,48 @@ def _strip_think_tags(content: str) -> str:
 
 
 def _safe_parse_json(content: str) -> dict:
-    text = _strip_think_tags(content)
-    if not text:
+    original = (content or "").strip()
+    if not original:
         return {}
-    # Strip markdown code fences
-    block = re.search(r"```(?:json)?\s*(.*?)\s*```", text, flags=re.DOTALL | re.IGNORECASE)
-    if block:
-        text = block.group(1).strip()
-    try:
-        parsed = json.loads(text)
-        return parsed if isinstance(parsed, dict) else {}
-    except json.JSONDecodeError:
+
+    candidates: list[str] = [original, _strip_think_tags(original)]
+    for text in candidates:
+        if not text:
+            continue
+        # Try markdown json block first.
+        block = re.search(r"```(?:json)?\s*(.*?)\s*```", text, flags=re.DOTALL | re.IGNORECASE)
+        if block:
+            try:
+                parsed = json.loads(block.group(1).strip())
+                if isinstance(parsed, dict):
+                    return parsed
+            except json.JSONDecodeError:
+                pass
+        # Try direct parse.
+        try:
+            parsed = json.loads(text)
+            if isinstance(parsed, dict):
+                return parsed
+        except json.JSONDecodeError:
+            pass
+        # Try first JSON-looking object slice.
         obj = re.search(r"(\{.*\})", text, flags=re.DOTALL)
         if obj:
             try:
-                return json.loads(obj.group(1))
+                parsed = json.loads(obj.group(1))
+                if isinstance(parsed, dict):
+                    return parsed
             except json.JSONDecodeError:
                 pass
-        return {}
+    return {}
 
 
 # ---------------------------------------------------------------------------
-# Query classification -- OpenRouter (fast, cheap)
+# Query classification -- Nebius fast model (Qwen3-235B-Instruct)
 # ---------------------------------------------------------------------------
 
 def classify_query(query: str) -> QueryClassification:
-    client = get_fast_client()
+    client = get_nebius_client()
     prompt = (
         "Classify query into Mode 1/2/3 and return strict JSON.\n"
         "Mode 1: pure literature query, no specific gene.\n"
@@ -86,14 +102,30 @@ def classify_query(query: str) -> QueryClassification:
         '{"mode":1|2|3,"research_plan":"...","gene_name":"optional","variant":"optional","tissue_context":"optional"}\n'
         f"Query: {query}"
     )
-    response = client.chat.completions.create(
-        model=settings.openrouter_fast_model,
-        messages=[
-            {"role": "system", "content": "You are a strict orchestrator. Return JSON only."},
-            {"role": "user", "content": prompt},
-        ],
-        response_format={"type": "json_object"},
-    )
+    try:
+        response = client.chat.completions.create(
+            model=settings.nebius_fast_model,
+            messages=[
+                {"role": "system", "content": "You are a strict orchestrator. Return JSON only."},
+                {"role": "user", "content": prompt},
+            ],
+            response_format={"type": "json_object"},
+        )
+    except Exception:
+        # Fallback to OpenRouter if Nebius unavailable
+        try:
+            fb = get_openrouter_client()
+            response = fb.chat.completions.create(
+                model=settings.openrouter_fallback_model,
+                messages=[
+                    {"role": "system", "content": "You are a strict orchestrator. Return JSON only."},
+                    {"role": "user", "content": prompt},
+                ],
+                response_format={"type": "json_object"},
+            )
+        except Exception:
+            mode = 2 if any(tok.isupper() and 2 <= len(tok) <= 10 and tok.isalpha() for tok in query.split()) else 1
+            return QueryClassification(mode=mode, research_plan="Fallback classification.")
     parsed = _safe_parse_json(response.choices[0].message.content or "")
     if not parsed:
         mode = 2 if any(tok.isupper() and 2 <= len(tok) <= 10 and tok.isalpha() for tok in query.split()) else 1
@@ -108,15 +140,16 @@ def classify_query(query: str) -> QueryClassification:
 
 
 # ---------------------------------------------------------------------------
-# Deep Research Analysis -- Frontier reasoning model (OpenRouter GPT-5.4)
+# Deep Research Analysis -- Nebius DeepSeek-R1-0528-fast (reasoning model)
 # ---------------------------------------------------------------------------
 
 def deep_research_analysis(query: str, raw_papers: list[dict]) -> DeepAnalysis:
-    """Frontier structured analysis via OpenRouter research model.
+    """Deep structured analysis via Nebius DeepSeek-R1 reasoning model.
 
     Produces: analyzed papers, consensus/conflicts/gaps, gene target, hypotheses.
+    R1 <think> blocks are stripped before JSON parsing.
     """
-    client = get_fast_client()
+    client = get_nebius_client()
     top = raw_papers[:10]
     if not top:
         return DeepAnalysis()
@@ -154,20 +187,43 @@ def deep_research_analysis(query: str, raw_papers: list[dict]) -> DeepAnalysis:
         f"Papers:\n{json.dumps(compact_papers, ensure_ascii=False)}"
     )
 
-    response = client.chat.completions.create(
-        model=settings.openrouter_research_model,
-        messages=[
-            {"role": "system", "content": "You are a biomedical research analyst. Return strict JSON only."},
-            {"role": "user", "content": prompt},
-        ],
-        response_format={"type": "json_object"},
-    )
-    parsed = _safe_parse_json(response.choices[0].message.content or "")
+    parsed: dict[str, Any] = {}
+    # Attempt 1: R1 reasoning model
+    try:
+        response = client.chat.completions.create(
+            model=settings.nebius_analysis_model,
+            messages=[
+                {"role": "system", "content": "You are a biomedical research analyst. Return strict JSON only, no markdown."},
+                {"role": "user", "content": prompt},
+            ],
+            response_format={"type": "json_object"},
+            max_tokens=2200,
+        )
+        parsed = _safe_parse_json(response.choices[0].message.content or "")
+    except Exception:
+        parsed = {}
+    # Attempt 2: deterministic fallback on synthesis model if R1 returns unusable payload
+    if not parsed:
+        try:
+            response = client.chat.completions.create(
+                model=settings.nebius_synthesis_model,
+                messages=[
+                    {"role": "system", "content": "You are a biomedical research analyst. Return strict JSON only."},
+                    {"role": "user", "content": prompt},
+                ],
+                response_format={"type": "json_object"},
+                max_tokens=1800,
+            )
+            parsed = _safe_parse_json(response.choices[0].message.content or "")
+        except Exception:
+            parsed = {}
     if not parsed:
         return DeepAnalysis()
 
     analyzed: list[AnalyzedPaper] = []
     for item in parsed.get("analyzed_papers", []):
+        if not isinstance(item, dict):
+            continue
         title = str(item.get("title", "")).strip()
         if not title:
             continue
@@ -220,7 +276,7 @@ def deep_research_analysis(query: str, raw_papers: list[dict]) -> DeepAnalysis:
 # ---------------------------------------------------------------------------
 
 async def run_pipeline(query: str, emitter: EventEmitter | None = None) -> PipelineResult:
-    await _emit(emitter, "orchestrator", "start", "Classifying query (OpenRouter/Gemini Flash)...")
+    await _emit(emitter, "orchestrator", "start", f"Classifying query ({settings.nebius_fast_model})...")
     classification = await asyncio.to_thread(classify_query, query)
     await _emit(
         emitter,
@@ -258,7 +314,7 @@ async def run_pipeline(query: str, emitter: EventEmitter | None = None) -> Pipel
             emitter,
             "analysis",
             "start",
-            f"Running deep research analysis ({settings.openrouter_research_model})...",
+            f"Running deep research analysis ({settings.nebius_analysis_model})...",
         )
         raw_papers = [p.model_dump() for p in literature.papers]
         analysis = await asyncio.to_thread(deep_research_analysis, query, raw_papers)

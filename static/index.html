@@ -7,40 +7,67 @@
   <link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="%230a0a0a"/><text x="50%" y="57%" dominant-baseline="middle" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="38" fill="%2300ff41">H</text></svg>' />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0a0a0a;
-      --fg: #f0f0f0;
-      --accent: #00ff41;
-      --border: 2px solid #f0f0f0;
+      --bg: #f3ecd9;
+      --bg-deep: #eadfc8;
+      --panel: rgba(255, 251, 241, 0.72);
+      --panel-strong: rgba(255, 249, 235, 0.92);
+      --fg: #191817;
+      --muted: #6b6458;
+      --accent: #0f8b5f;
+      --accent2: #2a6f97;
+      --accent3: #b45a3c;
+      --border: 2px solid #191817;
+      --shadow: 8px 8px 0 rgba(25, 24, 23, 0.12);
+      --shadow-soft: 0 18px 40px rgba(73, 57, 32, 0.12);
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      padding: 16px;
+      min-height: 100vh;
+      padding: 24px;
       background: var(--bg);
       color: var(--fg);
       font-family: "IBM Plex Mono", monospace;
+      background-image:
+        radial-gradient(circle at 15% 20%, rgba(15, 139, 95, 0.12), transparent 28%),
+        radial-gradient(circle at 82% 14%, rgba(42, 111, 151, 0.10), transparent 24%),
+        radial-gradient(circle at 50% 110%, rgba(180, 90, 60, 0.10), transparent 32%),
+        linear-gradient(rgba(25, 24, 23, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(25, 24, 23, 0.06) 1px, transparent 1px);
+      background-size: auto, auto, auto, 28px 28px, 28px 28px;
+      background-position: center, center, center, center, center;
     }
-    #topProgress {
+    body::before {
+      content: "";
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: transparent;
-      overflow: hidden;
-      opacity: 0;
+      inset: 0;
       pointer-events: none;
+      opacity: 0.16;
+      background-image: radial-gradient(rgba(25, 24, 23, 0.55) 0.55px, transparent 0.55px);
+      background-size: 5px 5px;
+      mix-blend-mode: multiply;
+    }
+    .app-shell {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    /* ── top progress bar ── */
+    #topProgress {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: transparent;
+      overflow: hidden; opacity: 0; pointer-events: none;
     }
     #topProgress::before {
       content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 35%;
-      height: 100%;
+      position: absolute; top: 0; left: 0;
+      width: 35%; height: 100%;
       background: var(--accent);
       transform: translateX(-120%);
     }
@@ -50,49 +77,240 @@
       0% { transform: translateX(-120%); }
       100% { transform: translateX(340%); }
     }
-    .title {
+
+    /* ── title ── */
+    .hero {
       border: var(--border);
-      padding: 12px;
+      padding: 22px 24px 20px;
+      margin-bottom: 14px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.1)),
+        linear-gradient(180deg, var(--panel-strong), rgba(234, 223, 200, 0.86));
+      box-shadow: var(--shadow), var(--shadow-soft);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -6% -42% auto;
+      width: 300px;
+      height: 300px;
+      border: 2px solid rgba(25, 24, 23, 0.12);
+      border-radius: 50%;
+      transform: rotate(12deg);
+    }
+    .hero-topline {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .hero-kicker {
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .hero-badge {
+      border: var(--border);
+      padding: 6px 10px;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      background: rgba(15, 139, 95, 0.08);
+    }
+    .hero h1 {
+      margin: 0;
+      font-family: "Fraunces", serif;
+      font-size: clamp(2.4rem, 5vw, 4.9rem);
+      line-height: 0.94;
+      max-width: 9.5ch;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+    }
+    .hook-word {
+      position: relative;
+      display: inline-block;
+      cursor: default;
+      border-bottom: 2px dotted rgba(25, 24, 23, 0.28);
+    }
+    .hook-word::after {
+      content: attr(data-note);
+      position: absolute;
+      left: 0;
+      bottom: calc(100% + 10px);
+      width: min(280px, 72vw);
+      padding: 8px 10px;
+      border: var(--border);
+      background: rgba(255, 249, 235, 0.96);
+      box-shadow: var(--shadow);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      letter-spacing: 0.01em;
+      text-transform: none;
+      color: var(--fg);
+      opacity: 0;
+      transform: translateY(4px);
+      pointer-events: none;
+      transition: opacity 120ms ease, transform 120ms ease;
+      z-index: 2;
+    }
+    .hook-word:hover::after {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .hero-copy {
+      max-width: 780px;
+      margin-top: 14px;
+      color: #2f2a24;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .hero-quote {
+      margin-top: 18px;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      border-top: 2px solid rgba(25, 24, 23, 0.14);
+      padding-top: 12px;
+      text-transform: none;
+      letter-spacing: 0.01em;
+    }
+    .hero-copy strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .hero-meta {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+    .hero-meta span {
+      border-top: 2px solid rgba(25, 24, 23, 0.14);
+      padding-top: 8px;
+      min-width: 180px;
+    }
+
+    .composer {
+      border: var(--border);
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      padding: 16px;
       margin-bottom: 12px;
     }
+    .composer-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .composer-label strong {
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .composer-note {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    /* ── textarea ── */
     textarea {
       width: 100%;
-      min-height: 96px;
-      background: transparent;
+      min-height: 104px;
+      background: rgba(255, 252, 244, 0.72);
       color: var(--fg);
       border: var(--border);
-      padding: 10px;
+      padding: 14px 16px;
       font-family: inherit;
       border-radius: 0;
+      resize: vertical;
+      box-shadow: inset 0 0 0 1px rgba(25, 24, 23, 0.06);
     }
+    textarea::placeholder { color: #746d62; }
+
+    /* ── button row ── */
+    .btn-row { display: flex; gap: 8px; align-items: flex-start; margin-top: 8px; flex-wrap: wrap; }
     button {
-      margin-top: 8px;
       border: var(--border);
-      background: transparent;
+      background: rgba(255, 251, 241, 0.85);
       color: var(--fg);
       padding: 10px 14px;
       font-family: inherit;
       cursor: pointer;
       border-radius: 0;
+      box-shadow: 4px 4px 0 rgba(25, 24, 23, 0.10);
+      transition: transform 120ms ease, box-shadow 120ms ease, color 120ms ease, border-color 120ms ease, background 120ms ease;
     }
-    button:hover { color: var(--accent); border-color: var(--accent); }
+    button:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(255, 255, 255, 0.94);
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 rgba(15, 139, 95, 0.14);
+    }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    button:disabled:hover { color: var(--fg); border-color: var(--fg); transform: none; box-shadow: 4px 4px 0 rgba(25, 24, 23, 0.10); }
+    #runBtn {
+      background: var(--fg);
+      color: #f8f1df;
+    }
+    #runBtn:hover:not(:disabled) {
+      color: #f8f1df;
+      border-color: var(--fg);
+      background: var(--accent);
+    }
+    #luckyBtn { border-color: rgba(25, 24, 23, 0.45); color: #4f4a42; }
+    #luckyBtn:hover:not(:disabled) { color: var(--accent3); border-color: var(--accent3); }
+    #luckyBtn.loading { color: var(--accent3); border-color: var(--accent3); }
+
+    /* ── demo chips ── */
     .demos {
-      margin-top: 10px;
+      margin-top: 12px;
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
+      align-items: center;
+      padding-top: 12px;
+      border-top: 2px dashed rgba(25, 24, 23, 0.18);
     }
+    .demos-label { color: var(--muted); font-size: 11px; width: 100%; }
     .demo-chip {
       border: var(--border);
-      padding: 5px 8px;
+      background: rgba(255, 251, 241, 0.78);
+      padding: 6px 10px;
       cursor: pointer;
       user-select: none;
       font-size: 12px;
+      display: flex; align-items: center; gap: 5px;
     }
-    .demo-chip:hover {
-      color: var(--accent);
-      border-color: var(--accent);
+    .demo-chip:hover { color: var(--accent); border-color: var(--accent); }
+    .chip-mode {
+      font-size: 9px;
+      font-weight: 600;
+      padding: 1px 4px;
+      border-radius: 1px;
+      flex-shrink: 0;
     }
+    .demo-chip[data-mode="1"] .chip-mode { background: var(--accent); color: #000; }
+    .demo-chip[data-mode="2"] .chip-mode { background: var(--accent2); color: #000; }
+    .demo-chip[data-mode="3"] .chip-mode { background: var(--accent3); color: #000; }
+
+    /* ── grid ── */
     .grid {
       margin-top: 12px;
       display: grid;
@@ -101,34 +319,87 @@
     }
     .panel {
       border: var(--border);
-      min-height: 420px;
-      padding: 10px;
-      white-space: pre-wrap;
+      min-height: 480px;
+      padding: 14px;
       overflow: auto;
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
     }
-    .label { color: var(--accent); margin-bottom: 8px; font-weight: 600; }
-    .line { margin-bottom: 6px; }
-    .agent { color: var(--accent); }
-    .ev-start { color: #9efcb3; }
-    .ev-progress { color: #f0f0f0; }
-    .ev-complete { color: #7bff7b; }
-    .ev-error { color: #ff6f6f; }
-    .log-error-block {
-      border-left: 4px solid #ff6f6f;
-      padding-left: 8px;
-      background: #1a0c0c;
-    }
-    .stream-cursor-line {
-      opacity: 0.95;
-    }
-    .cursor {
+    #logPanel { white-space: pre-wrap; }
+    #briefPanel { white-space: normal; display: flex; flex-direction: column; }
+
+    /* ── labels ── */
+    .label {
       color: var(--accent);
-      animation: blink 0.8s step-end infinite;
+      margin-bottom: 10px;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.16em;
     }
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
+
+    /* ── log lines ── */
+    .line { margin-bottom: 5px; font-size: 13px; }
+    .agent { color: var(--accent); }
+    .ev-start { color: #246d50; }
+    .ev-progress { color: #2b2927; }
+    .ev-complete { color: #0f8b5f; }
+    .ev-error { color: #ff6f6f; }
+    .log-error-block { border-left: 4px solid #ff6f6f; padding-left: 8px; background: rgba(180, 90, 60, 0.08); }
+    .stream-cursor-line { opacity: 0.95; }
+    .cursor { color: var(--accent); animation: blink 0.8s step-end infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    /* ── pipeline board ── */
+    #pipelineBoard {
+      border: 2px solid rgba(25, 24, 23, 0.18);
+      background: rgba(255, 252, 245, 0.78);
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      flex-shrink: 0;
     }
+    .pb-label {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .pb-agents { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .pb-node {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px;
+      padding: 3px 7px;
+      border: 1px solid rgba(25, 24, 23, 0.22);
+      white-space: nowrap;
+      background: rgba(255, 255, 255, 0.42);
+    }
+    .pb-node .pb-dot { font-size: 12px; }
+    .pb-node.pending  { color: #6e675d; border-color: rgba(25, 24, 23, 0.14); }
+    .pb-node.running  { color: var(--accent); border-color: var(--accent); }
+    .pb-node.done     { color: #0f8b5f; border-color: #0f8b5f; }
+    .pb-node.error    { color: #ff6f6f; border-color: #ff6f6f; }
+    .pb-node.skipped  { color: #9d968a; border-color: rgba(25, 24, 23, 0.08); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .pb-node.running .pb-dot { display: inline-block; animation: spin 1s linear infinite; }
+    .pb-arrow { color: #333; font-size: 12px; }
+    .pb-node.running .pb-sub {
+      font-size: 9px;
+      color: #888;
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .pb-node:not(.running) .pb-sub { display: none; }
+    .pb-footer {
+      margin-top: 5px;
+      font-size: 10px;
+      color: #575044;
+    }
+    .pb-model { color: #575044; }
+
+    /* ── brief content ── */
+    #briefContent { flex: 1; overflow: auto; }
     .citation { color: var(--accent); }
     .citation:hover { text-decoration: underline; }
     .mode-badge {
@@ -140,69 +411,256 @@
       margin-left: 6px;
       font-size: 0.85em;
     }
-    .source-counts {
-      color: #888;
-      font-size: 0.85em;
-      margin-bottom: 8px;
-    }
+    .source-counts { color: var(--muted); font-size: 0.85em; margin-bottom: 8px; }
     h3, h4 { margin: 10px 0 6px; }
-    h3 { font-size: 1.15rem; }
-    p { margin: 0 0 8px; line-height: 1.45; }
-    ul { margin: 0 0 10px 20px; padding: 0; }
-    .section-rule {
-      border: 0;
-      border-top: 1px solid #444;
-      margin: 10px 0;
+    h3 {
+      font-size: 1.55rem;
+      font-family: "Fraunces", serif;
+      text-transform: uppercase;
+      line-height: 1.1;
     }
-    .empty-state {
-      color: #9a9a9a;
-      font-size: 13px;
-      margin-top: 6px;
+    h4 { color: #2a241e; }
+    p { margin: 0 0 8px; line-height: 1.6; font-size: 13px; color: #2a2927; }
+    ul { margin: 0 0 10px 20px; padding: 0; font-size: 13px; }
+    li { margin-bottom: 4px; }
+    .section-rule { border: 0; border-top: 1px solid rgba(25, 24, 23, 0.14); margin: 12px 0; }
+    .empty-state { color: var(--muted); font-size: 13px; margin-top: 6px; }
+    .structure-card {
+      border: var(--border);
+      background: rgba(255, 252, 244, 0.7);
+      box-shadow: 4px 4px 0 rgba(25, 24, 23, 0.10);
+      padding: 12px;
+      margin-top: 10px;
     }
+    .structure-meta {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    .structure-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+      font-size: 11px;
+    }
+    .structure-links a,
+    .structure-links a:visited { color: var(--accent2); }
+    .structure-viewer {
+      width: 100%;
+      height: 340px;
+      border: 2px solid rgba(25, 24, 23, 0.14);
+      background:
+        radial-gradient(circle at 30% 20%, rgba(42, 111, 151, 0.10), transparent 28%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(234, 223, 200, 0.55));
+    }
+    .structure-pae { margin-top: 10px; }
+    .structure-pae img {
+      max-width: 100%;
+      border: 2px solid rgba(25, 24, 23, 0.14);
+      display: block;
+    }
+    .site-footer {
+      margin-top: 14px;
+      border: var(--border);
+      background: rgba(255, 250, 239, 0.85);
+      box-shadow: var(--shadow);
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+    .site-footer strong { color: var(--fg); }
+
     @media (max-width: 980px) {
+      body { padding: 16px; }
       .grid { grid-template-columns: 1fr; }
+      .hero h1 { max-width: 100%; }
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.4.2/3Dmol-min.js" defer></script>
 </head>
 <body>
   <div id="topProgress" aria-hidden="true"></div>
-  <div class="title">
-    <div><strong>HOOKE</strong></div>
-    <div>If I have seen far, it is from standing on the shoulders of giants.</div>
-  </div>
+  <div class="app-shell">
+    <section class="hero">
+      <div class="hero-topline">
+        <div class="hero-kicker">Agent-orchestrated research assistant</div>
+        <div class="hero-badge">Bio / molecular / science</div>
+      </div>
+      <h1><span class="hook-word" data-note="Robert Hooke gave the cell its name.">Hooke</span></h1>
+      <p class="hero-copy">
+        Agent-orchestrated research for <strong>bio, molecular, and hard-science questions</strong>.
+      </p>
+      <div class="hero-quote">"If I have seen further, it is by standing on the shoulders of giants." — Isaac Newton</div>
+    </section>
 
-  <textarea id="query" placeholder="Ask a hard-science research question..."></textarea>
-  <br />
-  <button id="runBtn">INVESTIGATE</button>
-  <div class="demos" aria-label="Demo queries">
-    <span class="demo-chip" data-q="How does Ozempic actually work at the molecular level and why does it cause muscle loss?">Ozempic</span>
-    <span class="demo-chip" data-q="What tissues is the LCT gene most active in and why can some adults digest milk while others cannot?">LCT / Lactase</span>
-    <span class="demo-chip" data-q="What does TP53 do in tumor suppression?">TP53</span>
-    <span class="demo-chip" data-q="What makes some cancer tumors resistant to immunotherapy?">Immunotherapy resistance</span>
-  </div>
+    <section class="composer">
+      <div class="composer-label">
+        <strong>Start an investigation</strong>
+        <span class="composer-note">Ask a focused query, or let Hooke generate a starting point.</span>
+      </div>
 
-  <div class="grid">
-    <div class="panel" id="logPanel">
-      <div class="label">AGENT LOG</div>
-      <div class="empty-state">Waiting for investigation...</div>
-    </div>
-    <div class="panel" id="briefPanel">
-      <div class="label">RESEARCH BRIEF</div>
-      <div id="briefContent">
-        <div class="empty-state">Brief will appear here once agents complete.</div>
+      <textarea id="query" placeholder="Ask a focused hard-science query..."></textarea>
+
+      <div class="btn-row">
+        <button id="runBtn">INVESTIGATE</button>
+        <button id="luckyBtn" title="Generate a narrow exploratory query via Nebius">I'M FEELING LUCKY</button>
+      </div>
+
+      <div class="demos">
+        <span class="demos-label">EXAMPLES — <span style="background:var(--accent);color:#f8f1df;padding:0 4px;font-size:9px;">M1</span> lit only &nbsp; <span style="background:var(--accent2);color:#f8f1df;padding:0 4px;font-size:9px;">M2</span> lit + genomic &nbsp; <span style="background:var(--accent3);color:#f8f1df;padding:0 4px;font-size:9px;">M3</span> deep sequential</span>
+        <span class="demo-chip" data-mode="1" data-q="Why is the sky blue? What does Rayleigh scattering tell us about light-matter interaction?"><span class="chip-mode">M1</span>Sky / Rayleigh</span>
+        <span class="demo-chip" data-mode="1" data-q="How does mRNA vaccine technology work and why is it more adaptable than traditional vaccines?"><span class="chip-mode">M1</span>mRNA vaccines</span>
+        <span class="demo-chip" data-mode="2" data-q="What does TP53 do in tumor suppression and DNA damage response?"><span class="chip-mode">M2</span>TP53</span>
+        <span class="demo-chip" data-mode="2" data-q="What tissues is the LCT gene most active in and why can some adults digest milk while others cannot?"><span class="chip-mode">M2</span>LCT / Lactase</span>
+        <span class="demo-chip" data-mode="3" data-q="How does Ozempic (semaglutide) work at the molecular level and what explains the muscle loss side effect?"><span class="chip-mode">M3</span>Ozempic</span>
+        <span class="demo-chip" data-mode="3" data-q="What makes some cancer tumors resistant to PD-1/PD-L1 checkpoint immunotherapy?"><span class="chip-mode">M3</span>Immunotherapy resistance</span>
+      </div>
+    </section>
+
+    <div class="grid">
+      <div class="panel" id="logPanel">
+        <div class="label">Agent Log</div>
+        <div class="empty-state">Waiting for investigation...</div>
+      </div>
+
+      <div class="panel" id="briefPanel">
+        <div id="pipelineBoard">
+          <div class="pb-label">Pipeline</div>
+          <div class="pb-agents" id="pbAgents">
+          </div>
+          <div class="pb-footer" id="pbFooter"></div>
+        </div>
+        <div class="label">Research Brief</div>
+        <div id="briefContent">
+          <div class="empty-state">Brief will appear here once agents complete.</div>
+        </div>
       </div>
     </div>
+
+    <footer class="site-footer">
+      <span><strong>Hooke Preview</strong> · research interface for bio, molecular, and hard science</span>
+      <span>Powered by OpenRouter and Nebius</span>
+    </footer>
   </div>
 
   <script>
-    const logPanel = document.getElementById("logPanel");
+    const logPanel     = document.getElementById("logPanel");
     const briefContent = document.getElementById("briefContent");
-    const runBtn = document.getElementById("runBtn");
-    const queryInput = document.getElementById("query");
-    const demoChips = document.querySelectorAll(".demo-chip");
+    const pbAgents     = document.getElementById("pbAgents");
+    const pbFooter     = document.getElementById("pbFooter");
+    const runBtn       = document.getElementById("runBtn");
+    const luckyBtn     = document.getElementById("luckyBtn");
+    const queryInput   = document.getElementById("query");
+    const demoChips    = document.querySelectorAll(".demo-chip");
+
     let isStreaming = false;
     let streamCursorLine = null;
 
+    // ── Pipeline state ─────────────────────────────────────────────────────
+    const PIPELINE_NODES = [
+      { id: "orchestrator", label: "ORCHESTRATOR" },
+      { id: "literature",   label: "LITERATURE" },
+      { id: "genomic",      label: "GENOMIC" },
+      { id: "analysis",     label: "ANALYSIS (R1)" },
+      { id: "synthesis",    label: "SYNTHESIS" },
+    ];
+    let pipelineState = {};
+    let currentMode = null;
+
+    function resetPipeline() {
+      currentMode = null;
+      pipelineState = {};
+      PIPELINE_NODES.forEach(n => {
+        pipelineState[n.id] = { status: "pending", sub: "" };
+      });
+      renderPipeline();
+      pbFooter.innerHTML = "";
+    }
+
+    function setPipelineAgent(agentId, status, sub) {
+      if (!pipelineState[agentId]) return;
+      pipelineState[agentId].status = status;
+      if (sub !== undefined) pipelineState[agentId].sub = sub;
+      renderPipeline();
+    }
+
+    function renderPipeline() {
+      pbAgents.innerHTML = "";
+
+      // Decide which nodes are visible / skipped based on mode
+      const skipGenomic  = currentMode === 1;
+      const skipAnalysis = currentMode !== 3;
+
+      PIPELINE_NODES.forEach((node, idx) => {
+        let { status, sub } = pipelineState[node.id];
+
+        if (node.id === "genomic"  && skipGenomic)  status = "skipped";
+        if (node.id === "analysis" && skipAnalysis) status = "skipped";
+
+        const dot = status === "running" ? "⟳"
+                  : status === "done"    ? "✓"
+                  : status === "error"   ? "✗"
+                  : status === "skipped" ? "—"
+                  : "○";
+
+        const el = document.createElement("div");
+        el.className = `pb-node ${status}`;
+        el.innerHTML = `<span class="pb-dot">${dot}</span><span>${escapeHtml(node.label)}</span>${sub ? `<span class="pb-sub">${escapeHtml(sub)}</span>` : ""}`;
+        pbAgents.appendChild(el);
+
+        // Arrow between nodes (not after last)
+        if (idx < PIPELINE_NODES.length - 1) {
+          const arr = document.createElement("span");
+          arr.className = "pb-arrow";
+          arr.textContent = "→";
+          pbAgents.appendChild(arr);
+        }
+      });
+    }
+
+    function updatePipelineFromEvent(agent, event, message, data) {
+      // Track mode from orchestrator progress
+      if (agent === "orchestrator" && event === "progress" && data?.mode) {
+        currentMode = data.mode;
+        const labels = { 1: "MODE 1  lit only", 2: "MODE 2  lit + genomic", 3: "MODE 3  deep sequential" };
+        pbFooter.innerHTML = `<span class="pb-model">nebius · ${getPipelineModel(data.mode)} · ${labels[data.mode] || ""}</span>`;
+      }
+
+      const statusMap = { start: "running", complete: "done", done: "done", error: "error", progress: null };
+      const nextStatus = statusMap[event];
+
+      // Sub-label for running state
+      let sub = "";
+      if (event === "start" || event === "progress") {
+        if (agent === "literature" && data?.source_counts) {
+          const sc = data.source_counts;
+          sub = `${sc.merged || 0} papers`;
+        } else if (message && message.length < 50) {
+          sub = message;
+        }
+      }
+
+      if (nextStatus) {
+        setPipelineAgent(agent, nextStatus, sub);
+      } else if (event === "progress" && pipelineState[agent]?.status === "running") {
+        setPipelineAgent(agent, "running", sub || message?.slice(0, 40) || "");
+      }
+    }
+
+    function getPipelineModel(mode) {
+      if (mode === 3) return "Qwen3 → R1 → V3.2";
+      return "Qwen3";
+    }
+
+    // ── HTML helpers ───────────────────────────────────────────────────────
     function escapeHtml(value) {
       const str = String(value ?? "");
       return str
@@ -213,6 +671,7 @@
         .replaceAll("'", "&#39;");
     }
 
+    // ── Log ────────────────────────────────────────────────────────────────
     function setStreamCursor(active) {
       if (active) {
         if (streamCursorLine) return;
@@ -223,10 +682,7 @@
         logPanel.scrollTop = logPanel.scrollHeight;
         return;
       }
-      if (streamCursorLine) {
-        streamCursorLine.remove();
-        streamCursorLine = null;
-      }
+      if (streamCursorLine) { streamCursorLine.remove(); streamCursorLine = null; }
     }
 
     function setStreamingState(active) {
@@ -237,34 +693,29 @@
 
     function addLogLine(ts, agent, event, message, data) {
       const hadCursor = Boolean(streamCursorLine);
-      if (hadCursor) {
-        setStreamCursor(false);
-      }
+      if (hadCursor) setStreamCursor(false);
 
       const line = document.createElement("div");
       const eventClass = `ev-${event || "progress"}`;
       line.className = `line ${eventClass}`;
-      if (event === "error") {
-        line.classList.add("log-error-block");
-      }
+      if (event === "error") line.classList.add("log-error-block");
 
       const safeTs = ts ? new Date(ts).toLocaleTimeString() : "--:--:--";
       let extra = "";
-      if (agent === "orchestrator" && data && data.mode) {
-        const modeLabels = { 1: "MODE 1: LITERATURE", 2: "MODE 2: LIT+GENOMIC", 3: "MODE 3: SEQUENTIAL" };
-        extra = `<span class="mode-badge">${modeLabels[data.mode] || "MODE " + data.mode}</span>`;
+
+      if (agent === "orchestrator" && data?.mode) {
+        const labels = { 1: "MODE 1: LIT ONLY", 2: "MODE 2: LIT+GENOMIC", 3: "MODE 3: DEEP" };
+        extra = `<span class="mode-badge">${labels[data.mode] || "MODE " + data.mode}</span>`;
       }
-      if (agent === "literature" && data && data.source_counts) {
+      if (data?.source_counts) {
         const sc = data.source_counts;
-        extra = ` <span style="color:#888;font-size:0.85em">[PubMed:${sc.pubmed || 0} S2:${sc.s2 || 0} Tavily:${sc.tavily || 0} merged:${sc.merged || 0}]</span>`;
+        extra += ` <span style="color:#555;font-size:0.82em">[PM:${sc.pubmed||0} OA:${sc.openalex||0} arXiv:${sc.arxiv||0} S2:${sc.s2||0} Tav:${sc.tavily||0} → ${sc.merged||0}]</span>`;
       }
-      line.innerHTML = `[${safeTs}] <span class="agent">${escapeHtml(agent || "unknown")}</span> (${escapeHtml(event || "progress")}): ${escapeHtml(message || "")}${extra}`;
+
+      line.innerHTML = `[${safeTs}] <span class="agent">${escapeHtml(agent || "?")}</span> <span style="color:#555">(${escapeHtml(event || "?")})</span>: ${escapeHtml(message || "")}${extra}`;
       logPanel.appendChild(line);
       logPanel.scrollTop = logPanel.scrollHeight;
-
-      if (hadCursor && isStreaming) {
-        setStreamCursor(true);
-      }
+      if (hadCursor && isStreaming) setStreamCursor(true);
     }
 
     function clearPanel(panelEl, labelText) {
@@ -279,27 +730,27 @@
       briefContent.innerHTML = `<div class="empty-state">Brief will appear here once agents complete.</div>`;
     }
 
+    // ── Citation renderer ──────────────────────────────────────────────────
     function citationToLink(citation) {
-      const safeCitation = escapeHtml(citation);
+      const safe = escapeHtml(citation);
       const doiMatch = citation.match(/10\.\d{4,9}\/[-._;()/:A-Z0-9]+/i);
       if (doiMatch) {
         const doi = doiMatch[0];
-        return `<a class="citation" target="_blank" rel="noopener noreferrer" href="https://doi.org/${encodeURIComponent(doi)}">${safeCitation}</a>`;
+        return `<a class="citation" target="_blank" rel="noopener noreferrer" href="https://doi.org/${encodeURIComponent(doi)}">${safe}</a>`;
       }
       const pmidMatch = citation.match(/PMID:\s*(\d+)/i);
       if (pmidMatch) {
-        const pmid = pmidMatch[1];
-        return `<a class="citation" target="_blank" rel="noopener noreferrer" href="https://pubmed.ncbi.nlm.nih.gov/${pmid}/">${safeCitation}</a>`;
+        return `<a class="citation" target="_blank" rel="noopener noreferrer" href="https://pubmed.ncbi.nlm.nih.gov/${pmidMatch[1]}/">${safe}</a>`;
       }
-      return safeCitation;
+      return safe;
     }
 
+    // ── Render analysis (Mode 3 R1 block) ─────────────────────────────────
     function renderAnalysis(analysisData) {
       if (!analysisData) return;
       const el = document.createElement("div");
       el.id = "analysisBlock";
-      let html = `<hr class="section-rule" /><h4 style="color:var(--accent);">DEEP ANALYSIS (R1)</h4>`;
-
+      let html = `<hr class="section-rule" /><h4 style="color:var(--accent3);">DEEP ANALYSIS (Nebius R1)</h4>`;
       if (analysisData.gene_name) {
         html += `<p><strong>Gene target:</strong> ${escapeHtml(analysisData.gene_name)} — ${escapeHtml(analysisData.gene_rationale || "")}</p>`;
       }
@@ -316,24 +767,99 @@
       briefContent.appendChild(el);
     }
 
+    function renderProteinStructure(genomic) {
+      if (!genomic?.structure_pdb_url && !genomic?.structure_cif_url) return;
+
+      const container = document.createElement("div");
+      container.className = "structure-card";
+
+      const confidence = typeof genomic.structure_confidence === "number"
+        ? `Mean pLDDT ${genomic.structure_confidence.toFixed(1)}`
+        : "Confidence unavailable";
+      const sourceBits = [
+        genomic.protein_name || genomic.gene,
+        genomic.uniprot_accession || null,
+        confidence,
+      ].filter(Boolean).join(" · ");
+
+      container.innerHTML = `
+        <h4>Protein Structure</h4>
+        <div class="structure-meta">${escapeHtml(sourceBits)}</div>
+        <div id="structureViewer" class="structure-viewer"></div>
+        <div class="structure-links">
+          ${genomic.structure_source_url ? `<a href="${escapeHtml(genomic.structure_source_url)}" target="_blank" rel="noreferrer">AlphaFold entry</a>` : ""}
+          ${genomic.structure_pdb_url ? `<a href="${escapeHtml(genomic.structure_pdb_url)}" target="_blank" rel="noreferrer">PDB model</a>` : ""}
+          ${genomic.structure_pae_url ? `<a href="${escapeHtml(genomic.structure_pae_url)}" target="_blank" rel="noreferrer">PAE JSON</a>` : ""}
+        </div>
+        ${genomic.structure_pae_image_url ? `<div class="structure-pae"><img src="${escapeHtml(genomic.structure_pae_image_url)}" alt="Predicted aligned error map for ${escapeHtml(genomic.gene || "protein")}" /></div>` : ""}
+      `;
+      briefContent.appendChild(container);
+
+      const viewerEl = document.getElementById("structureViewer");
+      if (!viewerEl || !window.$3Dmol) {
+        if (viewerEl) viewerEl.innerHTML = `<div class="empty-state" style="padding:12px;">Structure viewer unavailable in this browser.</div>`;
+        return;
+      }
+
+      const structureUrl = genomic.structure_pdb_url || genomic.structure_cif_url;
+      const format = genomic.structure_pdb_url ? "pdb" : "cif";
+      const viewer = window.$3Dmol.createViewer(viewerEl, { backgroundColor: "rgba(0,0,0,0)" });
+      fetch(structureUrl)
+        .then((resp) => resp.text())
+        .then((modelText) => {
+          viewer.addModel(modelText, format);
+          viewer.setStyle({}, { cartoon: { colorscheme: "spectrum" } });
+          viewer.zoomTo();
+          viewer.render();
+        })
+        .catch(() => {
+          viewerEl.innerHTML = `<div class="empty-state" style="padding:12px;">Unable to load structure model.</div>`;
+        });
+    }
+
+    // ── Render final brief ─────────────────────────────────────────────────
     function renderBrief(resultData) {
       const brief = resultData?.brief;
+      const genomic = resultData?.genomic;
       if (!brief) return;
-      const citations = (brief.citations || [])
-        .map(c => `<li class="citation">${citationToLink(c)}</li>`)
-        .join("");
+
+      // Preserve the deep analysis block (Mode 3) before overwriting
+      const existingAnalysis = document.getElementById("analysisBlock");
+      const savedAnalysis = existingAnalysis ? existingAnalysis.cloneNode(true) : null;
+
       const sc = resultData?.literature?.source_count;
-      const sourceStr = sc
-        ? `PubMed ${sc.pubmed || 0} · S2 ${sc.s2 || 0} · Tavily ${sc.tavily || 0} → ${sc.merged || 0} merged`
-        : "";
+      let sourceStr = "";
+      if (sc) {
+        const parts = [];
+        if (sc.pubmed)   parts.push(`PubMed ${sc.pubmed}`);
+        if (sc.openalex) parts.push(`OpenAlex ${sc.openalex}`);
+        if (sc.arxiv)    parts.push(`arXiv ${sc.arxiv}`);
+        if (sc.s2)       parts.push(`S2 ${sc.s2}`);
+        if (sc.tavily)   parts.push(`Tavily ${sc.tavily}`);
+        if (sc.merged)   parts.push(`→ <strong>${sc.merged}</strong> merged`);
+        sourceStr = parts.join(" · ");
+      }
+
       const mode = resultData?.classification?.mode;
-      const modeProvider = mode === 3
-        ? "Nebius R1 + OpenRouter Flash"
-        : mode === 2 ? "OpenRouter Flash" : "OpenRouter Flash";
+      const modeLabel = mode === 1 ? "MODE 1 · Literature Only"
+                      : mode === 2 ? "MODE 2 · Literature + Genomic"
+                      : mode === 3 ? "MODE 3 · Deep Sequential (R1)"
+                      : "";
+      const modelStr = mode === 3 ? "DeepSeek-R1 + V3.2" : "Qwen3-235B";
+
+      // Build citation cards with proper formatting
+      const citationItems = (brief.citations || []).map(c => {
+        const linked = citationToLink(c);
+        return `<li style="margin-bottom:6px;padding:4px 0;border-bottom:1px solid #1a1a1a;">${linked}</li>`;
+      }).join("");
 
       briefContent.innerHTML = `
         <h3>${escapeHtml(brief.title || "Research Brief")}</h3>
-        ${mode ? `<div class="source-counts">Mode ${mode} &nbsp;|&nbsp; ${escapeHtml(modeProvider)}${sourceStr ? " &nbsp;|&nbsp; " + escapeHtml(sourceStr) : ""}</div>` : ""}
+        <div class="source-counts">
+          ${modeLabel ? `<span style="color:var(--accent)">${escapeHtml(modeLabel)}</span> &nbsp;|&nbsp; ` : ""}
+          <span style="color:#777">${escapeHtml(modelStr)}</span>
+          ${sourceStr ? ` &nbsp;|&nbsp; <span style="color:#555">${sourceStr}</span>` : ""}
+        </div>
         <p>${escapeHtml(brief.summary || "")}</p>
         <hr class="section-rule" />
         <h4>Key Findings</h4>
@@ -347,28 +873,56 @@
         <hr class="section-rule" />
         <h4>Proposed Experiment</h4>
         <p>${escapeHtml(brief.proposed_experiment || "")}</p>
-        <hr class="section-rule" />
-        <h4>Citations</h4>
-        <ul>${citations}</ul>
+        ${citationItems ? `<hr class="section-rule" /><h4>References <span style="color:#555;font-size:0.8em">(${brief.citations.length})</span></h4><ul style="list-style:none;margin-left:0;padding-left:0;">${citationItems}</ul>` : ""}
       `;
+
+      // Re-append the deep analysis block after the brief (Mode 3)
+      if (savedAnalysis) {
+        briefContent.appendChild(savedAnalysis);
+      }
+      if (genomic?.structure_pdb_url || genomic?.structure_cif_url) {
+        renderProteinStructure(genomic);
+      }
+    }
+
+    // ── SSE parser ─────────────────────────────────────────────────────────
+    function splitSSEBuffer(buffer) {
+      const chunks = [];
+      let remaining = buffer;
+
+      while (true) {
+        const match = remaining.match(/\r?\n\r?\n/);
+        if (!match || match.index === undefined) break;
+        chunks.push(remaining.slice(0, match.index));
+        remaining = remaining.slice(match.index + match[0].length);
+      }
+
+      return { chunks, remaining };
     }
 
     function parseSSEChunk(rawChunk) {
-      const lines = rawChunk.split("\n");
+      const lines = rawChunk.split(/\r?\n/);
       const dataLines = [];
       for (const line of lines) {
-        if (line.startsWith("data:")) {
-          dataLines.push(line.slice(5).trimStart());
-        }
+        if (line.startsWith("data:")) dataLines.push(line.slice(5).trimStart());
       }
       if (!dataLines.length) return null;
-      try {
-        return JSON.parse(dataLines.join("\n"));
-      } catch (_) {
-        return null;
+      try { return JSON.parse(dataLines.join("\n")); } catch (_) { return null; }
+    }
+
+    function processPayload(payload) {
+      if (!payload) return;
+      addLogLine(payload.timestamp, payload.agent, payload.event, payload.message, payload.data);
+      updatePipelineFromEvent(payload.agent, payload.event, payload.message, payload.data);
+      if (payload.agent === "analysis" && payload.event === "complete" && payload.data) {
+        renderAnalysis(payload.data);
+      }
+      if (payload.data?.brief) {
+        renderBrief(payload.data);
       }
     }
 
+    // ── Main investigation ─────────────────────────────────────────────────
     async function runInvestigation() {
       const query = queryInput.value.trim();
       if (!query || runBtn.disabled) return;
@@ -376,6 +930,7 @@
       runBtn.textContent = "INVESTIGATING...";
       clearPanel(logPanel, "AGENT LOG");
       resetBriefPanel();
+      resetPipeline();
       setStreamingState(true);
 
       try {
@@ -396,32 +951,13 @@
           const { value, done } = await reader.read();
           if (done) break;
           buffer += decoder.decode(value, { stream: true });
-          const chunks = buffer.split("\n\n");
-          buffer = chunks.pop() || "";
-          for (const chunk of chunks) {
-            const payload = parseSSEChunk(chunk);
-            if (!payload) continue;
-            addLogLine(payload.timestamp, payload.agent, payload.event, payload.message, payload.data);
-            if (payload.agent === "analysis" && payload.event === "complete" && payload.data) {
-              renderAnalysis(payload.data);
-            }
-            if (payload.data?.brief) {
-              renderBrief(payload.data);
-            }
+          const parsed = splitSSEBuffer(buffer);
+          buffer = parsed.remaining;
+          for (const chunk of parsed.chunks) {
+            processPayload(parseSSEChunk(chunk));
           }
         }
-        if (buffer.trim()) {
-          const payload = parseSSEChunk(buffer);
-          if (payload) {
-            addLogLine(payload.timestamp, payload.agent, payload.event, payload.message, payload.data);
-            if (payload.agent === "analysis" && payload.event === "complete" && payload.data) {
-              renderAnalysis(payload.data);
-            }
-            if (payload.data?.brief) {
-              renderBrief(payload.data);
-            }
-          }
-        }
+        if (buffer.trim()) processPayload(parseSSEChunk(buffer));
       } catch (err) {
         addLogLine(new Date().toISOString(), "system", "error", `Request failed: ${err}`);
       } finally {
@@ -431,11 +967,42 @@
       }
     }
 
-    runBtn.addEventListener("click", runInvestigation);
+    // ── Lucky button ───────────────────────────────────────────────────────
+    async function runLucky() {
+      if (luckyBtn.disabled) return;
+      luckyBtn.disabled = true;
+      luckyBtn.classList.add("loading");
+      luckyBtn.textContent = "GENERATING...";
+      try {
+        const resp = await fetch("/api/lucky");
+        if (!resp.ok) throw new Error("Lucky endpoint failed");
+        const data = await resp.json();
+        queryInput.value = data.question;
+        const domainNote = document.createElement("div");
+        domainNote.style.cssText = "font-size:11px;color:#555;margin-top:3px;";
+        domainNote.textContent = `↑ generated by Nebius · domain: ${data.domain}`;
+        queryInput.parentNode.insertBefore(domainNote, queryInput.nextSibling);
+        setTimeout(() => domainNote.remove(), 6000);
+        runInvestigation();
+      } catch (err) {
+        luckyBtn.textContent = "I'M FEELING LUCKY";
+        luckyBtn.disabled = false;
+        luckyBtn.classList.remove("loading");
+        alert("Lucky generation failed: " + err.message);
+      } finally {
+        luckyBtn.textContent = "I'M FEELING LUCKY";
+        luckyBtn.disabled = false;
+        luckyBtn.classList.remove("loading");
+      }
+    }
 
-    queryInput.addEventListener("keydown", (event) => {
-      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
-        event.preventDefault();
+    // ── Event listeners ────────────────────────────────────────────────────
+    runBtn.addEventListener("click", runInvestigation);
+    luckyBtn.addEventListener("click", runLucky);
+
+    queryInput.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
         runInvestigation();
       }
     });
@@ -448,7 +1015,9 @@
         runInvestigation();
       });
     });
+
+    // ── Init pipeline render ───────────────────────────────────────────────
+    resetPipeline();
   </script>
 </body>
 </html>
-

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from pathlib import Path
@@ -72,6 +73,23 @@ async def root() -> FileResponse:
 def _cache_key(query: str) -> str:
     safe = "".join(ch.lower() if ch.isalnum() else "_" for ch in query.strip())[:120]
     return safe.strip("_") or "query"
+
+
+def _normalize_lucky_query(raw: str) -> str:
+    cleaned = " ".join((raw or "").replace("\n", " ").replace("\t", " ").split()).strip(" \"'")
+    cleaned = cleaned.rstrip("?.!,;:")
+    tokens = re.findall(r"[A-Za-z0-9-]+", cleaned)
+    stopwords = {
+        "a", "activity", "an", "and", "at", "by", "can", "could", "does", "do", "enhance",
+        "exacerbate", "exacerbating", "explain", "for", "how", "in", "is",
+        "induction", "it", "its", "of", "on", "or", "promote", "selective",
+        "targeted", "that", "the", "their", "to", "what", "whether", "why",
+        "with", "without",
+    }
+    words = [token for token in tokens if token.lower() not in stopwords]
+    if not words:
+        return ""
+    return " ".join(words[:8])
 
 
 async def _replay_cached_events(path: Path):
@@ -178,7 +196,87 @@ async def investigate(req: InvestigateRequest) -> EventSourceResponse:
     return EventSourceResponse(event_generator())
 
 
+@app.get("/api/lucky")
+async def lucky() -> dict[str, str]:
+    """Generate one short exploratory research query via Nebius."""
+    import random
+
+    from openai import OpenAI
+
+    domains = [
+        "quantum biology",
+        "brain organoids",
+        "extremophile adaptation",
+        "epigenetic inheritance",
+        "non-coding RNA",
+        "convergent evolution",
+        "aging biology",
+        "antibiotic resistance",
+        "neural correlates of consciousness",
+        "neurodegeneration",
+        "horizontal gene transfer",
+        "microbiome-host signaling",
+        "bioelectric tissue patterning",
+        "RNA editing",
+        "mitochondrial signaling",
+        "gut microbiota metabolism",
+        "cellular senescence",
+        "deep sea bioluminescence",
+        "magnetoreception",
+        "cryptobiosis",
+    ]
+    domain = random.choice(domains)
+
+    client = OpenAI(
+        base_url=settings.nebius_base_url,
+        api_key=settings.nebius_api_key,
+        timeout=15,
+    )
+    try:
+        resp = client.chat.completions.create(
+            model=settings.nebius_fast_model,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You generate one short exploratory hard-science query for a research app. "
+                        "Return exactly one line. "
+                        "The query must be 3 to 8 words, plain and compact, and usable as a starting point for exploratory research. "
+                        "Focus on one mechanism, entity, or relationship, with at most one bridge concept. "
+                        "Prefer noun phrases or very short question-like queries. "
+                        "Do not write thesis questions, long clauses, or multi-part prompts. "
+                        "Do not use words like can, could, does, whether, without, enhance, promote, exacerbate, explain why, or what determines. "
+                        "Do not use punctuation except hyphens when necessary. "
+                        "Examples: immunoproteasome senescent cells; senescent cells CD8 T cell recognition; microbiome host gene expression."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": (
+                        f"Domain: {domain}. "
+                        "Generate one connected exploratory query that feels biologically sensible and narrow enough to investigate."
+                    ),
+                },
+            ],
+            max_tokens=32,
+        )
+        q = _normalize_lucky_query(resp.choices[0].message.content)
+        if not q:
+            raise ValueError("Lucky query was empty after normalization")
+        return {"question": q, "domain": domain, "model": settings.nebius_fast_model}
+    except Exception:
+        fallbacks = [
+            "mitochondrial signaling caloric restriction",
+            "gut microbiota horizontal gene transfer",
+            "bird magnetoreception quantum coherence",
+            "programmed senescence escape mechanisms",
+            "extracellular vesicle stress signaling",
+            "early tumor driver mutations",
+            "embryonic bioelectric body patterning",
+        ]
+        return {"question": random.choice(fallbacks), "domain": domain, "model": "fallback"}
+
+
 @app.get("/health")
 async def health() -> dict[str, Any]:
-    return {"ok": True, "model": settings.nebius_model}
-
+    return {"ok": True, "model": settings.nebius_fast_model}

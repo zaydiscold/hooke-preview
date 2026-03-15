@@ -4,7 +4,7 @@ import json
 import re
 from pathlib import Path
 
-from config import get_fast_client, get_nebius_client, settings
+from config import get_nebius_client, get_openrouter_client, settings
 from schemas import DeepAnalysis, GenomicResult, LiteratureSummary, ResearchBrief
 
 SOUL_PATH = Path(__file__).resolve().parent.parent / "SOUL.md"
@@ -131,7 +131,7 @@ def _synthesize_with_fast(
     genomic: GenomicResult | None,
     analysis: DeepAnalysis | None,
 ) -> ResearchBrief:
-    client = get_fast_client()
+    """Modes 1/2 synthesis — Nebius Qwen3-235B-Instruct (fast, cheap)."""
     prompt = (
         "Generate a scientific research brief as strict JSON with these exact keys:\n"
         '{"title":"...","summary":"...","key_findings":["..."],"genomic_insight":"...",'
@@ -144,10 +144,11 @@ def _synthesize_with_fast(
         f"Payload: {json.dumps(payload, ensure_ascii=False)}"
     )
     try:
+        client = get_nebius_client()
         response = client.chat.completions.create(
-            model=settings.openrouter_fast_model,
+            model=settings.nebius_fast_model,
             messages=[
-                {"role": "system", "content": f"You are Hooke, a hard-science research agent.\n{soul}\nReturn strict JSON only."},
+                {"role": "system", "content": f"You are Hooke, a hard-science research assistant.\n{soul}\nReturn strict JSON only."},
                 {"role": "user", "content": prompt},
             ],
             response_format={"type": "json_object"},
@@ -171,6 +172,20 @@ def _synthesize_with_fast(
         return _fallback_brief(query, literature, genomic, analysis)
 
 
+def _build_brief_from_parsed(parsed: dict, query: str) -> ResearchBrief:
+    return ResearchBrief(
+        title=str(parsed.get("title") or f"Hooke Deep Research Brief: {query[:80]}"),
+        summary=str(parsed.get("summary") or ""),
+        key_findings=list(parsed.get("key_findings") or []),
+        genomic_insight=parsed.get("genomic_insight"),
+        evidence_synthesis=parsed.get("evidence_synthesis"),
+        confidence_assessment=parsed.get("confidence_assessment"),
+        research_gap=str(parsed.get("research_gap") or "Research gap not identified."),
+        proposed_experiment=str(parsed.get("proposed_experiment") or "Design a targeted validation experiment."),
+        citations=list(parsed.get("citations") or []),
+    )
+
+
 def _synthesize_with_frontier(
     query: str,
     payload: dict,
@@ -179,10 +194,9 @@ def _synthesize_with_frontier(
     genomic: GenomicResult | None,
     analysis: DeepAnalysis | None,
 ) -> ResearchBrief:
-    """Mode 3 synthesis using a frontier brief model (OpenRouter primary)."""
-    client = get_fast_client()
+    """Mode 3 synthesis — Nebius DeepSeek-V3.2 primary, OpenRouter as fallback."""
     prompt = (
-        "You are Hooke, a hard-science research agent. Produce a definitive research brief as strict JSON:\n"
+        "You are Hooke, a hard-science research assistant. Produce a definitive research brief as strict JSON:\n"
         "{\n"
         '  "title": "...",\n'
         '  "summary": "3-5 sentence synthesis of all evidence",\n'
@@ -198,9 +212,11 @@ def _synthesize_with_frontier(
         "evidence_synthesis weaves literature + genomic data. Be honest about limitations.\n\n"
         f"Payload:\n{json.dumps(payload, ensure_ascii=False)}"
     )
+    # Primary: Nebius DeepSeek-V3.2
     try:
+        client = get_nebius_client()
         response = client.chat.completions.create(
-            model=settings.openrouter_brief_model,
+            model=settings.nebius_synthesis_model,
             messages=[
                 {"role": "system", "content": f"{soul}\nReturn strict JSON only."},
                 {"role": "user", "content": prompt},
@@ -209,45 +225,27 @@ def _synthesize_with_frontier(
             max_tokens=2500,
         )
         parsed = _safe_parse_json(response.choices[0].message.content or "")
-        if not parsed:
-            return _fallback_brief(query, literature, genomic, analysis)
-        return ResearchBrief(
-            title=str(parsed.get("title") or f"Hooke Deep Research Brief: {query[:80]}"),
-            summary=str(parsed.get("summary") or ""),
-            key_findings=list(parsed.get("key_findings") or []),
-            genomic_insight=parsed.get("genomic_insight"),
-            evidence_synthesis=parsed.get("evidence_synthesis"),
-            confidence_assessment=parsed.get("confidence_assessment"),
-            research_gap=str(parsed.get("research_gap") or "Research gap not identified."),
-            proposed_experiment=str(parsed.get("proposed_experiment") or "Design a targeted validation experiment."),
-            citations=list(parsed.get("citations") or []),
-        )
+        if parsed:
+            return _build_brief_from_parsed(parsed, query)
     except Exception:
-        # Fallback to Nebius credits if OpenRouter frontier model errors/rate-limits.
-        try:
-            backup_client = get_nebius_client()
-            backup_response = backup_client.chat.completions.create(
-                model=settings.nebius_synthesis_model,
-                messages=[
-                    {"role": "system", "content": f"{soul}\nReturn strict JSON only."},
-                    {"role": "user", "content": prompt},
-                ],
-                response_format={"type": "json_object"},
-                max_tokens=2500,
-            )
-            parsed = _safe_parse_json(backup_response.choices[0].message.content or "")
-            if not parsed:
-                return _fallback_brief(query, literature, genomic, analysis)
-            return ResearchBrief(
-                title=str(parsed.get("title") or f"Hooke Deep Research Brief: {query[:80]}"),
-                summary=str(parsed.get("summary") or ""),
-                key_findings=list(parsed.get("key_findings") or []),
-                genomic_insight=parsed.get("genomic_insight"),
-                evidence_synthesis=parsed.get("evidence_synthesis"),
-                confidence_assessment=parsed.get("confidence_assessment"),
-                research_gap=str(parsed.get("research_gap") or "Research gap not identified."),
-                proposed_experiment=str(parsed.get("proposed_experiment") or "Design a targeted validation experiment."),
-                citations=list(parsed.get("citations") or []),
-            )
-        except Exception:
-            return _fallback_brief(query, literature, genomic, analysis)
+        pass
+
+    # Fallback: OpenRouter Gemini Flash (cheap, reliable)
+    try:
+        fb_client = get_openrouter_client()
+        fb_response = fb_client.chat.completions.create(
+            model=settings.openrouter_fallback_model,
+            messages=[
+                {"role": "system", "content": f"{soul}\nReturn strict JSON only."},
+                {"role": "user", "content": prompt},
+            ],
+            response_format={"type": "json_object"},
+            max_tokens=2500,
+        )
+        parsed = _safe_parse_json(fb_response.choices[0].message.content or "")
+        if parsed:
+            return _build_brief_from_parsed(parsed, query)
+    except Exception:
+        pass
+
+    return _fallback_brief(query, literature, genomic, analysis)

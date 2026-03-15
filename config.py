@@ -12,54 +12,63 @@ except ImportError:
 
 @dataclass(frozen=True)
 class Settings:
-    # --- Nebius Token Factory (hackathon credits) ---
+    # -----------------------------------------------------------------------
+    # Nebius Token Factory — PRIMARY provider for all LLM calls
+    # Three-tier model strategy benchmarked against available models:
+    #   fast     → Qwen3-235B-Instruct  (1.1s)  classification, Mode1/2 synthesis
+    #   analysis → DeepSeek-R1-0528-fast (3.8s)  Mode3 deep reasoning
+    #   synthesis → DeepSeek-V3.2        (2.0s)  Mode3 brief generation
+    # -----------------------------------------------------------------------
     nebius_api_key: str = os.getenv(
         "NEBIUS_API_KEY",
-        "",
+        "v1.CmMKHHN0YXRpY2tleS1lMDB4enFrazNmZnlzdzV0eWoSIXNlcnZpY2VhY2NvdW50LWUwMGZqc2F6d2FlN2Y5NWUxYTILCLel3M0GEMizmiY6DAi2qPSYBxDAp4nCAUACWgNlMDA.AAAAAAAAAAE9FU-73PFty4eZJOIz1_oY4eRvzrhJ7q1vesYpBQZ-iH1d0ZfNuK1WzMLBv4FP75mGIMqtI-0L1xFDeNdtSpoG",
     )
     nebius_base_url: str = os.getenv(
         "NEBIUS_BASE_URL",
         "https://api.tokenfactory.nebius.com/v1/",
     )
-    nebius_model: str = os.getenv(
-        "NEBIUS_MODEL",
-        "meta-llama/Llama-3.3-70B-Instruct",
+    # Fast, cheap — query classification + genomic interpretation + Mode 1/2 synthesis
+    nebius_fast_model: str = os.getenv(
+        "NEBIUS_FAST_MODEL",
+        "Qwen/Qwen3-235B-A22B-Instruct-2507",
     )
+    # Reasoning — Mode 3 deep paper analysis (strips <think> tags)
+    nebius_analysis_model: str = os.getenv(
+        "NEBIUS_ANALYSIS_MODEL",
+        "deepseek-ai/DeepSeek-R1-0528-fast",
+    )
+    # High-quality writing — Mode 3 final research brief
     nebius_synthesis_model: str = os.getenv(
         "NEBIUS_SYNTHESIS_MODEL",
-        "deepseek-ai/DeepSeek-V3-0324-fast",
+        "deepseek-ai/DeepSeek-V3.2",
     )
 
-    # --- OpenRouter (fast/cheap orchestration calls) ---
+    # -----------------------------------------------------------------------
+    # OpenRouter — emergency fallback only (if Nebius errors/rate-limits)
+    # -----------------------------------------------------------------------
     openrouter_api_key: str = os.getenv(
         "OPENROUTER_API_KEY",
-        "",
+        "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",
     )
     openrouter_base_url: str = os.getenv(
         "OPENROUTER_BASE_URL",
         "https://openrouter.ai/api/v1",
     )
-    openrouter_fast_model: str = os.getenv(
-        "OPENROUTER_FAST_MODEL",
+    openrouter_fallback_model: str = os.getenv(
+        "OPENROUTER_FALLBACK_MODEL",
         "google/gemini-2.5-flash",
     )
-    openrouter_research_model: str = os.getenv(
-        "OPENROUTER_RESEARCH_MODEL",
-        "openai/gpt-5.4",
-    )
-    openrouter_brief_model: str = os.getenv(
-        "OPENROUTER_BRIEF_MODEL",
-        "anthropic/claude-opus-4.6",
-    )
 
-    # --- External APIs ---
+    # -----------------------------------------------------------------------
+    # External APIs
+    # -----------------------------------------------------------------------
     tavily_api_key: str = os.getenv(
         "TAVILY_API_KEY",
-        "",
+        "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",
     )
     google_api_key: str = os.getenv(
         "GOOGLE_API_KEY",
-        "",
+        "AIzaSyDvmo1NtnpiKZX7KVbruFLS4rI7SMijTCI",
     )
     semantic_scholar_api_key: str = os.getenv("SEMANTIC_SCHOLAR_API_KEY", "")
     pubmed_email: str = os.getenv("PUBMED_EMAIL", "hooke-bio@users.noreply.github.com")
@@ -67,29 +76,30 @@ class Settings:
     app_port: int = int(os.getenv("APP_PORT", "8000"))
 
 
-def _require_setting(name: str, value: str) -> str:
-    if value:
-        return value
-    raise RuntimeError(f"Missing required environment variable: {name}")
-
-
-def get_fast_client() -> "OpenAI":
-    """OpenRouter client for cheap/fast orchestration calls."""
-    from openai import OpenAI
-    return OpenAI(
-        base_url=settings.openrouter_base_url,
-        api_key=_require_setting("OPENROUTER_API_KEY", settings.openrouter_api_key),
-    )
-
-
 def get_nebius_client() -> "OpenAI":
-    """Nebius client for synthesis (DeepSeek-V3-fast, hackathon credits)."""
+    """Primary Nebius Token Factory client — used for all LLM calls."""
     from openai import OpenAI
     return OpenAI(
         base_url=settings.nebius_base_url,
-        api_key=_require_setting("NEBIUS_API_KEY", settings.nebius_api_key),
+        api_key=settings.nebius_api_key,
+        timeout=90,
+    )
+
+
+def get_openrouter_client() -> "OpenAI":
+    """OpenRouter client — emergency fallback if Nebius unavailable."""
+    from openai import OpenAI
+    return OpenAI(
+        base_url=settings.openrouter_base_url,
+        api_key=settings.openrouter_api_key,
         timeout=60,
     )
+
+
+# Back-compat alias used by genomic.py and other older callers
+def get_fast_client() -> "OpenAI":
+    """Alias for get_nebius_client (fast Qwen model handles fast calls)."""
+    return get_nebius_client()
 
 
 settings = Settings()

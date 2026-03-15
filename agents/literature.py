@@ -516,14 +516,14 @@ def _enrich_abstracts_via_openrouter_sync(papers: list[Paper]) -> list[str]:
     to do a live web search and synthesise a short summary.  We batch ≤5 at a time
     to stay cheap; each call is a single web-search model call.
     """
-    from config import get_fast_client
+    from config import get_openrouter_client
 
-    needs_enrichment = [p for p in papers if not (p.abstract or p.tldr)][:5]
+    needs_enrichment = [p for p in papers if not (p.abstract or p.tldr)][:3]
     if not needs_enrichment:
         return []
 
     warnings: list[str] = []
-    client = get_fast_client()
+    client = get_openrouter_client()
 
     for paper in needs_enrichment:
         year_str = f" ({paper.year})" if paper.year else ""
@@ -649,7 +649,7 @@ def _merge_papers(
 
 
 def _enrich_unpaywall_sync(papers: list[Paper]) -> None:
-    candidates = [p for p in papers if p.doi and not p.pdf_url][:10]
+    candidates = [p for p in papers if p.doi and not p.pdf_url][:3]
     for paper in candidates:
         try:
             url = UNPAYWALL_URL.format(doi=urllib.parse.quote(paper.doi or "", safe=""))
@@ -715,10 +715,10 @@ def _analyze_papers_sync(query: str, papers: list[Paper]) -> list[AnalyzedPaper]
         '"evidence_strength":"strong|moderate|weak", "relevant_to_query":"...", "gap_identified":"..."}\n\n'
         f"User query: {query}\n\nPapers:\n{json.dumps(formatted, ensure_ascii=False)}"
     )
-    from config import get_fast_client
-    client = get_fast_client()
+    from config import get_nebius_client
+    client = get_nebius_client()
     response = client.chat.completions.create(
-        model=settings.openrouter_fast_model,
+        model=settings.nebius_fast_model,
         messages=[
             {"role": "system", "content": "You are a scientific research analyst. Output strict JSON."},
             {"role": "user", "content": prompt},
@@ -794,10 +794,10 @@ def _cross_corroborate_sync(query: str, analyzed: list[AnalyzedPaper]) -> tuple[
         "Only include claims supported directly by these items. Include citation references inline like [Title, Year].\n"
         f"Query: {query}\nItems: {json.dumps(payload, ensure_ascii=False)}"
     )
-    from config import get_fast_client
-    client = get_fast_client()
+    from config import get_nebius_client
+    client = get_nebius_client()
     response = client.chat.completions.create(
-        model=settings.openrouter_fast_model,
+        model=settings.nebius_fast_model,
         messages=[
             {"role": "system", "content": "You are a strict scientific synthesis engine. Output JSON only."},
             {"role": "user", "content": prompt},
