@@ -7,6 +7,7 @@ from pydantic import BaseModel, Discriminator, Field, Tag
 
 class InvestigateRequest(BaseModel):
     query: str
+    prefer_cached: bool = False
 
 
 class Paper(BaseModel):

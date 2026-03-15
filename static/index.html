@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hooke MVP</title>
-  <link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="%230a0a0a"/><text x="50%" y="57%" dominant-baseline="middle" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="38" fill="%2300ff41">H</text></svg>' />
+  <title>Hooke</title>
+  <link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="10" fill="%23f3ecd9"/><rect x="6" y="6" width="52" height="52" rx="8" fill="%23fff8eb" stroke="%23191817" stroke-width="3"/><circle cx="24" cy="24" r="8" fill="none" stroke="%230f8b5f" stroke-width="3"/><circle cx="39.5" cy="24.5" r="4.5" fill="%232a6f97"/><path d="M18 40c4.2-5.2 8.8-7.8 14.4-7.8c6.1 0 11 3.1 14.6 9.3" fill="none" stroke="%23b45a3c" stroke-width="3.2" stroke-linecap="round"/><circle cx="18" cy="40" r="2.5" fill="%23191817"/><circle cx="47" cy="41.5" r="2.5" fill="%23191817"/></svg>' />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap" rel="stylesheet">
@@ -24,6 +24,10 @@
       --shadow-soft: 0 18px 40px rgba(73, 57, 32, 0.12);
     }
     * { box-sizing: border-box; }
+    *::selection {
+      background: rgba(15, 139, 95, 0.18);
+      color: var(--fg);
+    }
     body {
       margin: 0;
       min-height: 100vh;
@@ -39,6 +43,10 @@
         linear-gradient(90deg, rgba(25, 24, 23, 0.06) 1px, transparent 1px);
       background-size: auto, auto, auto, 28px 28px, 28px 28px;
       background-position: center, center, center, center, center;
+    }
+    html {
+      scrollbar-color: rgba(25, 24, 23, 0.55) rgba(255, 249, 235, 0.72);
+      scrollbar-width: thin;
     }
     body::before {
       content: "";
@@ -91,6 +99,13 @@
       position: relative;
       overflow: hidden;
     }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      border: 1px solid rgba(25, 24, 23, 0.08);
+      pointer-events: none;
+    }
     .hero::after {
       content: "";
       position: absolute;
@@ -114,6 +129,20 @@
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--muted);
+      position: relative;
+      padding-left: 16px;
+    }
+    .hero-kicker::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      transform: translateY(-50%);
+      box-shadow: 14px 0 0 rgba(15, 139, 95, 0.18);
     }
     .hero-badge {
       border: var(--border);
@@ -122,6 +151,7 @@
       letter-spacing: 0.14em;
       text-transform: uppercase;
       background: rgba(15, 139, 95, 0.08);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.32);
     }
     .hero h1 {
       margin: 0;
@@ -137,6 +167,7 @@
       display: inline-block;
       cursor: default;
       border-bottom: 2px dotted rgba(25, 24, 23, 0.28);
+      text-underline-offset: 0.16em;
     }
     .hook-word::after {
       content: attr(data-note);
@@ -209,6 +240,16 @@
       box-shadow: var(--shadow);
       padding: 16px;
       margin-bottom: 12px;
+      position: relative;
+    }
+    .composer::after {
+      content: "QUERY";
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      color: rgba(25, 24, 23, 0.22);
+      font-size: 10px;
+      letter-spacing: 0.18em;
     }
     .composer-label {
       display: flex;
@@ -240,8 +281,16 @@
       border-radius: 0;
       resize: vertical;
       box-shadow: inset 0 0 0 1px rgba(25, 24, 23, 0.06);
+      caret-color: var(--accent);
+      transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
     }
     textarea::placeholder { color: #746d62; }
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: rgba(255, 253, 247, 0.92);
+      box-shadow: inset 0 0 0 1px rgba(15, 139, 95, 0.12), 0 0 0 3px rgba(15, 139, 95, 0.08);
+    }
 
     /* ── button row ── */
     .btn-row { display: flex; gap: 8px; align-items: flex-start; margin-top: 8px; flex-wrap: wrap; }
@@ -255,6 +304,11 @@
       border-radius: 0;
       box-shadow: 4px 4px 0 rgba(25, 24, 23, 0.10);
       transition: transform 120ms ease, box-shadow 120ms ease, color 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+    button:focus-visible {
+      outline: none;
+      box-shadow: 4px 4px 0 rgba(25, 24, 23, 0.10), 0 0 0 3px rgba(42, 111, 151, 0.14);
+      border-color: var(--accent2);
     }
     button:hover {
       color: var(--accent);
@@ -288,7 +342,11 @@
       padding-top: 12px;
       border-top: 2px dashed rgba(25, 24, 23, 0.18);
     }
-    .demos-label { color: var(--muted); font-size: 11px; width: 100%; }
+    .demos-label {
+      color: var(--muted);
+      font-size: 11px;
+      width: 100%;
+    }
     .demo-chip {
       border: var(--border);
       background: rgba(255, 251, 241, 0.78);
@@ -296,15 +354,50 @@
       cursor: pointer;
       user-select: none;
       font-size: 12px;
-      display: flex; align-items: center; gap: 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 3px 3px 0 rgba(25, 24, 23, 0.08);
+      transition: transform 120ms ease, box-shadow 120ms ease, color 120ms ease, border-color 120ms ease, background 120ms ease;
+      position: relative;
     }
-    .demo-chip:hover { color: var(--accent); border-color: var(--accent); }
+    .demo-chip:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(255, 255, 255, 0.92);
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0 rgba(15, 139, 95, 0.10);
+    }
     .chip-mode {
       font-size: 9px;
       font-weight: 600;
       padding: 1px 4px;
-      border-radius: 1px;
+      border-radius: 999px;
       flex-shrink: 0;
+    }
+    .demo-chip[data-cached="true"]::after {
+      content: "cached demo";
+      position: absolute;
+      left: 10px;
+      bottom: calc(100% + 6px);
+      opacity: 0;
+      pointer-events: none;
+      background: var(--fg);
+      color: #f8f1df;
+      border: 2px solid rgba(25, 24, 23, 0.18);
+      padding: 3px 6px;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      box-shadow: 3px 3px 0 rgba(25, 24, 23, 0.08);
+      transform: translateY(2px);
+      transition: opacity 120ms ease, transform 120ms ease;
+      z-index: 3;
+    }
+    .demo-chip[data-cached="true"]:hover::after {
+      opacity: 1;
+      transform: translateY(0);
     }
     .demo-chip[data-mode="1"] .chip-mode { background: var(--accent); color: #000; }
     .demo-chip[data-mode="2"] .chip-mode { background: var(--accent2); color: #000; }
@@ -325,6 +418,14 @@
       background: var(--panel);
       backdrop-filter: blur(10px);
       box-shadow: var(--shadow);
+      position: relative;
+    }
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border: 1px solid rgba(25, 24, 23, 0.08);
+      pointer-events: none;
     }
     #logPanel { white-space: pre-wrap; }
     #briefPanel { white-space: normal; display: flex; flex-direction: column; }
@@ -336,6 +437,18 @@
       font-weight: 600;
       font-size: 12px;
       letter-spacing: 0.16em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .label::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(15, 139, 95, 0.18);
+      border: 2px solid var(--accent);
     }
 
     /* ── log lines ── */
@@ -476,7 +589,37 @@
       letter-spacing: 0.12em;
       color: var(--muted);
     }
+    .footer-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .footer-mark {
+      width: 24px;
+      height: 24px;
+      flex: 0 0 auto;
+      display: block;
+    }
     .site-footer strong { color: var(--fg); }
+    .site-footer span:last-child {
+      color: var(--fg);
+    }
+
+    ::-webkit-scrollbar {
+      width: 12px;
+      height: 12px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 249, 235, 0.7);
+      border-left: 1px solid rgba(25, 24, 23, 0.08);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(25, 24, 23, 0.45);
+      border: 3px solid rgba(255, 249, 235, 0.92);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(15, 139, 95, 0.62);
+    }
 
     @media (max-width: 980px) {
       body { padding: 16px; }
@@ -492,11 +635,11 @@
     <section class="hero">
       <div class="hero-topline">
         <div class="hero-kicker">Agent-orchestrated research assistant</div>
-        <div class="hero-badge">Bio / molecular / science</div>
+        <div class="hero-badge">Biology / chemistry / physics</div>
       </div>
       <h1><span class="hook-word" data-note="Robert Hooke gave the cell its name.">Hooke</span></h1>
       <p class="hero-copy">
-        Agent-orchestrated research for <strong>bio, molecular, and hard-science questions</strong>.
+        Built for <strong>researchers, experimentalists, and people at the bench</strong> who need a fast, objective way to turn a prompt into literature, relevant data, and experimental starting points across biological, molecular, chemical, and physical work.
       </p>
       <div class="hero-quote">"If I have seen further, it is by standing on the shoulders of giants." — Isaac Newton</div>
     </section>
@@ -504,10 +647,10 @@
     <section class="composer">
       <div class="composer-label">
         <strong>Start an investigation</strong>
-        <span class="composer-note">Ask a focused query, or let Hooke generate a starting point.</span>
+        <span class="composer-note">Modes 2 and 3 go beyond answers, pulling in data and experiment-ready leads.</span>
       </div>
 
-      <textarea id="query" placeholder="Ask a focused hard-science query..."></textarea>
+      <textarea id="query" placeholder="Ask for a mechanism, target, pathway, dataset, or experimental starting point..."></textarea>
 
       <div class="btn-row">
         <button id="runBtn">INVESTIGATE</button>
@@ -516,12 +659,12 @@
 
       <div class="demos">
         <span class="demos-label">EXAMPLES — <span style="background:var(--accent);color:#f8f1df;padding:0 4px;font-size:9px;">M1</span> lit only &nbsp; <span style="background:var(--accent2);color:#f8f1df;padding:0 4px;font-size:9px;">M2</span> lit + genomic &nbsp; <span style="background:var(--accent3);color:#f8f1df;padding:0 4px;font-size:9px;">M3</span> deep sequential</span>
-        <span class="demo-chip" data-mode="1" data-q="Why is the sky blue? What does Rayleigh scattering tell us about light-matter interaction?"><span class="chip-mode">M1</span>Sky / Rayleigh</span>
-        <span class="demo-chip" data-mode="1" data-q="How does mRNA vaccine technology work and why is it more adaptable than traditional vaccines?"><span class="chip-mode">M1</span>mRNA vaccines</span>
-        <span class="demo-chip" data-mode="2" data-q="What does TP53 do in tumor suppression and DNA damage response?"><span class="chip-mode">M2</span>TP53</span>
-        <span class="demo-chip" data-mode="2" data-q="What tissues is the LCT gene most active in and why can some adults digest milk while others cannot?"><span class="chip-mode">M2</span>LCT / Lactase</span>
-        <span class="demo-chip" data-mode="3" data-q="How does Ozempic (semaglutide) work at the molecular level and what explains the muscle loss side effect?"><span class="chip-mode">M3</span>Ozempic</span>
-        <span class="demo-chip" data-mode="3" data-q="What makes some cancer tumors resistant to PD-1/PD-L1 checkpoint immunotherapy?"><span class="chip-mode">M3</span>Immunotherapy resistance</span>
+        <span class="demo-chip" data-mode="1" data-q="Why is the sky blue? What does Rayleigh scattering tell us about light-matter interaction?" data-cached="false"><span class="chip-mode">M1</span>Sky / Rayleigh</span>
+        <span class="demo-chip" data-mode="1" data-q="How does mRNA vaccine technology work and why is it more adaptable than traditional vaccines?" data-cached="true"><span class="chip-mode">M1</span>mRNA vaccines</span>
+        <span class="demo-chip" data-mode="2" data-q="What does TP53 do in tumor suppression and DNA damage response?" data-cached="false"><span class="chip-mode">M2</span>TP53</span>
+        <span class="demo-chip" data-mode="2" data-q="What tissues is the LCT gene most active in and why can some adults digest milk while others cannot?" data-cached="true"><span class="chip-mode">M2</span>LCT / Lactase</span>
+        <span class="demo-chip" data-mode="3" data-q="What makes some cancer tumors resistant to PD-1/PD-L1 checkpoint immunotherapy?" data-cached="false"><span class="chip-mode">M3</span>Immunotherapy resistance</span>
+        <span class="demo-chip" data-mode="3" data-q="How does Ozempic actually work at the molecular level and why does it cause muscle loss?" data-cached="true"><span class="chip-mode">M3</span>Ozempic</span>
       </div>
     </section>
 
@@ -546,7 +689,18 @@
     </div>
 
     <footer class="site-footer">
-      <span><strong>Hooke Preview</strong> · research interface for bio, molecular, and hard science</span>
+      <span class="footer-brand">
+        <svg class="footer-mark" viewBox="0 0 64 64" aria-hidden="true">
+          <rect width="64" height="64" rx="10" fill="#f3ecd9"></rect>
+          <rect x="6" y="6" width="52" height="52" rx="8" fill="#fff8eb" stroke="#191817" stroke-width="3"></rect>
+          <circle cx="24" cy="24" r="8" fill="none" stroke="#0f8b5f" stroke-width="3"></circle>
+          <circle cx="39.5" cy="24.5" r="4.5" fill="#2a6f97"></circle>
+          <path d="M18 40c4.2-5.2 8.8-7.8 14.4-7.8c6.1 0 11 3.1 14.6 9.3" fill="none" stroke="#b45a3c" stroke-width="3.2" stroke-linecap="round"></path>
+          <circle cx="18" cy="40" r="2.5" fill="#191817"></circle>
+          <circle cx="47" cy="41.5" r="2.5" fill="#191817"></circle>
+        </svg>
+        <span><strong>Hooke Preview</strong> · research interface for bio, molecular, and hard science</span>
+      </span>
       <span>Powered by OpenRouter and Nebius</span>
     </footer>
   </div>
@@ -923,7 +1077,7 @@
     }
 
     // ── Main investigation ─────────────────────────────────────────────────
-    async function runInvestigation() {
+    async function runInvestigation(preferCached = false) {
       const query = queryInput.value.trim();
       if (!query || runBtn.disabled) return;
       runBtn.disabled = true;
@@ -937,7 +1091,7 @@
         const resp = await fetch("/api/investigate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query }),
+          body: JSON.stringify({ query, prefer_cached: preferCached }),
         });
         if (!resp.ok || !resp.body) {
           addLogLine(new Date().toISOString(), "system", "error", "Failed to start request.");
@@ -1010,9 +1164,10 @@
     demoChips.forEach((chip) => {
       chip.addEventListener("click", () => {
         const query = chip.getAttribute("data-q");
+        const preferCached = chip.getAttribute("data-cached") === "true";
         if (!query) return;
         queryInput.value = query;
-        runInvestigation();
+        runInvestigation(preferCached);
       });
     });
 

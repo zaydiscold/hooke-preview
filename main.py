@@ -92,6 +92,13 @@ def _normalize_lucky_query(raw: str) -> str:
     return " ".join(words[:8])
 
 
+def _find_cache_file(query: str) -> Path | None:
+    exact = CACHE_DIR / f"{_cache_key(query)}.json"
+    if exact.exists():
+        return exact
+    return None
+
+
 async def _replay_cached_events(path: Path):
     payload = json.loads(path.read_text(encoding="utf-8"))
     events = payload.get("events", [])
@@ -106,6 +113,21 @@ async def _replay_cached_events(path: Path):
 @app.post("/api/investigate")
 async def investigate(req: InvestigateRequest) -> EventSourceResponse:
     async def event_generator():
+        if req.prefer_cached:
+            cache_file = _find_cache_file(req.query)
+            if cache_file is not None:
+                replay_msg = {
+                    "timestamp": _utc_now_iso(),
+                    "agent": "system",
+                    "event": "progress",
+                    "message": "Replaying cached demo result.",
+                    "data": {"query": req.query, "cached": True},
+                }
+                yield {"event": "message", "data": json.dumps(replay_msg)}
+                async for replay_event in _replay_cached_events(cache_file):
+                    yield replay_event
+                return
+
         queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
         all_events: list[dict[str, Any]] = []
         should_write_cache = True
@@ -137,12 +159,12 @@ async def investigate(req: InvestigateRequest) -> EventSourceResponse:
                 all_events.append(final_payload)
                 await queue.put(final_payload)
             except Exception as exc:
-                cache_file = CACHE_DIR / f"{_cache_key(req.query)}.json"
-                if not cache_file.exists():
+                cache_file = _find_cache_file(req.query)
+                if cache_file is None:
                     demos = sorted(CACHE_DIR.glob("demo_*.json"))
                     if demos:
                         cache_file = demos[0]
-                if cache_file.exists():
+                if cache_file and cache_file.exists():
                     replay_msg = {
                         "timestamp": _utc_now_iso(),
                         "agent": "system",
