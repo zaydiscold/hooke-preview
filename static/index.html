@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hooke MVP</title>
+  <link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="%230a0a0a"/><text x="50%" y="57%" dominant-baseline="middle" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="38" fill="%2300ff41">H</text></svg>' />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --fg: #f0f0f0;
+      --accent: #00ff41;
+      --border: 2px solid #f0f0f0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "IBM Plex Mono", monospace;
+    }
+    #topProgress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: transparent;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #topProgress::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 35%;
+      height: 100%;
+      background: var(--accent);
+      transform: translateX(-120%);
+    }
+    body.is-streaming #topProgress { opacity: 1; }
+    body.is-streaming #topProgress::before { animation: indeterminate 1.25s linear infinite; }
+    @keyframes indeterminate {
+      0% { transform: translateX(-120%); }
+      100% { transform: translateX(340%); }
+    }
+    .title {
+      border: var(--border);
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 96px;
+      background: transparent;
+      color: var(--fg);
+      border: var(--border);
+      padding: 10px;
+      font-family: inherit;
+      border-radius: 0;
+    }
+    button {
+      margin-top: 8px;
+      border: var(--border);
+      background: transparent;
+      color: var(--fg);
+      padding: 10px 14px;
+      font-family: inherit;
+      cursor: pointer;
+      border-radius: 0;
+    }
+    button:hover { color: var(--accent); border-color: var(--accent); }
+    .demos {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .demo-chip {
+      border: var(--border);
+      padding: 5px 8px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 12px;
+    }
+    .demo-chip:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .grid {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .panel {
+      border: var(--border);
+      min-height: 420px;
+      padding: 10px;
+      white-space: pre-wrap;
+      overflow: auto;
+    }
+    .label { color: var(--accent); margin-bottom: 8px; font-weight: 600; }
+    .line { margin-bottom: 6px; }
+    .agent { color: var(--accent); }
+    .ev-start { color: #9efcb3; }
+    .ev-progress { color: #f0f0f0; }
+    .ev-complete { color: #7bff7b; }
+    .ev-error { color: #ff6f6f; }
+    .log-error-block {
+      border-left: 4px solid #ff6f6f;
+      padding-left: 8px;
+      background: #1a0c0c;
+    }
+    .stream-cursor-line {
+      opacity: 0.95;
+    }
+    .cursor {
+      color: var(--accent);
+      animation: blink 0.8s step-end infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .citation { color: var(--accent); }
+    .citation:hover { text-decoration: underline; }
+    .mode-badge {
+      display: inline-block;
+      background: var(--accent);
+      color: #000;
+      font-weight: 600;
+      padding: 1px 6px;
+      margin-left: 6px;
+      font-size: 0.85em;
+    }
+    .source-counts {
+      color: #888;
+      font-size: 0.85em;
+      margin-bottom: 8px;
+    }
+    h3, h4 { margin: 10px 0 6px; }
+    h3 { font-size: 1.15rem; }
+    p { margin: 0 0 8px; line-height: 1.45; }
+    ul { margin: 0 0 10px 20px; padding: 0; }
+    .section-rule {
+      border: 0;
+      border-top: 1px solid #444;
+      margin: 10px 0;
+    }
+    .empty-state {
+      color: #9a9a9a;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="topProgress" aria-hidden="true"></div>
+  <div class="title">
+    <div><strong>HOOKE</strong></div>
+    <div>If I have seen far, it is from standing on the shoulders of giants.</div>
+  </div>
+
+  <textarea id="query" placeholder="Ask a hard-science research question..."></textarea>
+  <br />
+  <button id="runBtn">INVESTIGATE</button>
+  <div class="demos" aria-label="Demo queries">
+    <span class="demo-chip" data-q="How does Ozempic actually work at the molecular level and why does it cause muscle loss?">Ozempic</span>
+    <span class="demo-chip" data-q="What tissues is the LCT gene most active in and why can some adults digest milk while others cannot?">LCT / Lactase</span>
+    <span class="demo-chip" data-q="What does TP53 do in tumor suppression?">TP53</span>
+    <span class="demo-chip" data-q="What makes some cancer tumors resistant to immunotherapy?">Immunotherapy resistance</span>
+  </div>
+
+  <div class="grid">
+    <div class="panel" id="logPanel">
+      <div class="label">AGENT LOG</div>
+      <div class="empty-state">Waiting for investigation...</div>
+    </div>
+    <div class="panel" id="briefPanel">
+      <div class="label">RESEARCH BRIEF</div>
+      <div id="briefContent">
+        <div class="empty-state">Brief will appear here once agents complete.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const logPanel = document.getElementById("logPanel");
+    const briefContent = document.getElementById("briefContent");
+    const runBtn = document.getElementById("runBtn");
+    const queryInput = document.getElementById("query");
+    const demoChips = document.querySelectorAll(".demo-chip");
+    let isStreaming = false;
+    let streamCursorLine = null;
+
+    function escapeHtml(value) {
+      const str = String(value ?? "");
+      return str
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function setStreamCursor(active) {
+      if (active) {
+        if (streamCursorLine) return;
+        streamCursorLine = document.createElement("div");
+        streamCursorLine.className = "line stream-cursor-line";
+        streamCursorLine.innerHTML = `<span class="agent">system</span>: <span class="cursor">_</span>`;
+        logPanel.appendChild(streamCursorLine);
+        logPanel.scrollTop = logPanel.scrollHeight;
+        return;
+      }
+      if (streamCursorLine) {
+        streamCursorLine.remove();
+        streamCursorLine = null;
+      }
+    }
+
+    function setStreamingState(active) {
+      isStreaming = active;
+      document.body.classList.toggle("is-streaming", active);
+      setStreamCursor(active);
+    }
+
+    function addLogLine(ts, agent, event, message, data) {
+      const hadCursor = Boolean(streamCursorLine);
+      if (hadCursor) {
+        setStreamCursor(false);
+      }
+
+      const line = document.createElement("div");
+      const eventClass = `ev-${event || "progress"}`;
+      line.className = `line ${eventClass}`;
+      if (event === "error") {
+        line.classList.add("log-error-block");
+      }
+
+      const safeTs = ts ? new Date(ts).toLocaleTimeString() : "--:--:--";
+      let extra = "";
+      if (agent === "orchestrator" && data && data.mode) {
+        const modeLabels = { 1: "MODE 1: LITERATURE", 2: "MODE 2: LIT+GENOMIC", 3: "MODE 3: SEQUENTIAL" };
+        extra = `<span class="mode-badge">${modeLabels[data.mode] || "MODE " + data.mode}</span>`;
+      }
+      if (agent === "literature" && data && data.source_counts) {
+        const sc = data.source_counts;
+        extra = ` <span style="color:#888;font-size:0.85em">[PubMed:${sc.pubmed || 0} S2:${sc.s2 || 0} Tavily:${sc.tavily || 0} merged:${sc.merged || 0}]</span>`;
+      }
+      line.innerHTML = `[${safeTs}] <span class="agent">${escapeHtml(agent || "unknown")}</span> (${escapeHtml(event || "progress")}): ${escapeHtml(message || "")}${extra}`;
+      logPanel.appendChild(line);
+      logPanel.scrollTop = logPanel.scrollHeight;
+
+      if (hadCursor && isStreaming) {
+        setStreamCursor(true);
+      }
+    }
+
+    function clearPanel(panelEl, labelText) {
+      panelEl.innerHTML = "";
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = labelText;
+      panelEl.appendChild(label);
+    }
+
+    function resetBriefPanel() {
+      briefContent.innerHTML = `<div class="empty-state">Brief will appear here once agents complete.</div>`;
+    }
+
+    function citationToLink(citation) {
+      const safeCitation = escapeHtml(citation);
+      const doiMatch = citation.match(/10\.\d{4,9}\/[-._;()/:A-Z0-9]+/i);
+      if (doiMatch) {
+        const doi = doiMatch[0];
+        return `<a class="citation" target="_blank" rel="noopener noreferrer" href="https://doi.org/${encodeURIComponent(doi)}">${safeCitation}</a>`;
+      }
+      const pmidMatch = citation.match(/PMID:\s*(\d+)/i);
+      if (pmidMatch) {
+        const pmid = pmidMatch[1];
+        return `<a class="citation" target="_blank" rel="noopener noreferrer" href="https://pubmed.ncbi.nlm.nih.gov/${pmid}/">${safeCitation}</a>`;
+      }
+      return safeCitation;
+    }
+
+    function renderAnalysis(analysisData) {
+      if (!analysisData) return;
+      const el = document.createElement("div");
+      el.id = "analysisBlock";
+      let html = `<hr class="section-rule" /><h4 style="color:var(--accent);">DEEP ANALYSIS (R1)</h4>`;
+
+      if (analysisData.gene_name) {
+        html += `<p><strong>Gene target:</strong> ${escapeHtml(analysisData.gene_name)} — ${escapeHtml(analysisData.gene_rationale || "")}</p>`;
+      }
+      if (analysisData.consensus_points?.length) {
+        html += `<h4>Consensus</h4><ul>${analysisData.consensus_points.map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ul>`;
+      }
+      if (analysisData.conflicts?.length) {
+        html += `<h4>Conflicts</h4><ul>${analysisData.conflicts.map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ul>`;
+      }
+      if (analysisData.hypotheses?.length) {
+        html += `<h4>Hypotheses</h4><ul>${analysisData.hypotheses.map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ul>`;
+      }
+      el.innerHTML = html;
+      briefContent.appendChild(el);
+    }
+
+    function renderBrief(resultData) {
+      const brief = resultData?.brief;
+      if (!brief) return;
+      const citations = (brief.citations || [])
+        .map(c => `<li class="citation">${citationToLink(c)}</li>`)
+        .join("");
+      const sc = resultData?.literature?.source_count;
+      const sourceStr = sc
+        ? `PubMed ${sc.pubmed || 0} · S2 ${sc.s2 || 0} · Tavily ${sc.tavily || 0} → ${sc.merged || 0} merged`
+        : "";
+      const mode = resultData?.classification?.mode;
+      const modeProvider = mode === 3
+        ? "Nebius R1 + OpenRouter Flash"
+        : mode === 2 ? "OpenRouter Flash" : "OpenRouter Flash";
+
+      briefContent.innerHTML = `
+        <h3>${escapeHtml(brief.title || "Research Brief")}</h3>
+        ${mode ? `<div class="source-counts">Mode ${mode} &nbsp;|&nbsp; ${escapeHtml(modeProvider)}${sourceStr ? " &nbsp;|&nbsp; " + escapeHtml(sourceStr) : ""}</div>` : ""}
+        <p>${escapeHtml(brief.summary || "")}</p>
+        <hr class="section-rule" />
+        <h4>Key Findings</h4>
+        <ul>${(brief.key_findings || []).map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ul>
+        ${brief.evidence_synthesis ? `<hr class="section-rule" /><h4>Evidence Synthesis</h4><p>${escapeHtml(brief.evidence_synthesis)}</p>` : ""}
+        ${brief.confidence_assessment ? `<hr class="section-rule" /><h4>Confidence Assessment</h4><p>${escapeHtml(brief.confidence_assessment)}</p>` : ""}
+        ${brief.genomic_insight ? `<hr class="section-rule" /><h4>Genomic Insight</h4><p>${escapeHtml(brief.genomic_insight)}</p>` : ""}
+        <hr class="section-rule" />
+        <h4>Research Gap</h4>
+        <p>${escapeHtml(brief.research_gap || "")}</p>
+        <hr class="section-rule" />
+        <h4>Proposed Experiment</h4>
+        <p>${escapeHtml(brief.proposed_experiment || "")}</p>
+        <hr class="section-rule" />
+        <h4>Citations</h4>
+        <ul>${citations}</ul>
+      `;
+    }
+
+    function parseSSEChunk(rawChunk) {
+      const lines = rawChunk.split("\n");
+      const dataLines = [];
+      for (const line of lines) {
+        if (line.startsWith("data:")) {
+          dataLines.push(line.slice(5).trimStart());
+        }
+      }
+      if (!dataLines.length) return null;
+      try {
+        return JSON.parse(dataLines.join("\n"));
+      } catch (_) {
+        return null;
+      }
+    }
+
+    async function runInvestigation() {
+      const query = queryInput.value.trim();
+      if (!query || runBtn.disabled) return;
+      runBtn.disabled = true;
+      runBtn.textContent = "INVESTIGATING...";
+      clearPanel(logPanel, "AGENT LOG");
+      resetBriefPanel();
+      setStreamingState(true);
+
+      try {
+        const resp = await fetch("/api/investigate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query }),
+        });
+        if (!resp.ok || !resp.body) {
+          addLogLine(new Date().toISOString(), "system", "error", "Failed to start request.");
+          return;
+        }
+
+        const reader = resp.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const chunks = buffer.split("\n\n");
+          buffer = chunks.pop() || "";
+          for (const chunk of chunks) {
+            const payload = parseSSEChunk(chunk);
+            if (!payload) continue;
+            addLogLine(payload.timestamp, payload.agent, payload.event, payload.message, payload.data);
+            if (payload.agent === "analysis" && payload.event === "complete" && payload.data) {
+              renderAnalysis(payload.data);
+            }
+            if (payload.data?.brief) {
+              renderBrief(payload.data);
+            }
+          }
+        }
+        if (buffer.trim()) {
+          const payload = parseSSEChunk(buffer);
+          if (payload) {
+            addLogLine(payload.timestamp, payload.agent, payload.event, payload.message, payload.data);
+            if (payload.agent === "analysis" && payload.event === "complete" && payload.data) {
+              renderAnalysis(payload.data);
+            }
+            if (payload.data?.brief) {
+              renderBrief(payload.data);
+            }
+          }
+        }
+      } catch (err) {
+        addLogLine(new Date().toISOString(), "system", "error", `Request failed: ${err}`);
+      } finally {
+        setStreamingState(false);
+        runBtn.disabled = false;
+        runBtn.textContent = "INVESTIGATE";
+      }
+    }
+
+    runBtn.addEventListener("click", runInvestigation);
+
+    queryInput.addEventListener("keydown", (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+        event.preventDefault();
+        runInvestigation();
+      }
+    });
+
+    demoChips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const query = chip.getAttribute("data-q");
+        if (!query) return;
+        queryInput.value = query;
+        runInvestigation();
+      });
+    });
+  </script>
+</body>
+</html>
+

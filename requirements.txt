@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+sse-starlette
+openai
+biopython
+alphagenome
+pydantic
+requests
+python-dotenv
+
