@@ -1,9 +1,13 @@
 .env
+.env.local
+.env.*
+!.env.example
 .venv/
 __pycache__/
 agents/__pycache__/
 cache/
 firebase-debug.log
+HOOKE_PREVIEW_SPEC_V2.md
 *.pyc
 *.pyo
 *.pyd

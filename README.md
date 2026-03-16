@@ -109,4 +109,6 @@ Keep these constraints in mind when you run the app:
 - Semantic Scholar can rate-limit unauthenticated requests.
 - AlphaGenome is optional; Hooke falls back to Ensembl-based interpretation if
   AlphaGenome is unavailable.
+- Prompt-injection evaluation is not implemented yet. Promptfoo is a planned
+  addition for future prompt-injection testing and security review.
 - Generated cache files remain local and are excluded from git.

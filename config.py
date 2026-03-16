@@ -21,7 +21,7 @@ class Settings:
     # -----------------------------------------------------------------------
     nebius_api_key: str = os.getenv(
         "NEBIUS_API_KEY",
-        "v1.CmMKHHN0YXRpY2tleS1lMDB4enFrazNmZnlzdzV0eWoSIXNlcnZpY2VhY2NvdW50LWUwMGZqc2F6d2FlN2Y5NWUxYTILCLel3M0GEMizmiY6DAi2qPSYBxDAp4nCAUACWgNlMDA.AAAAAAAAAAE9FU-73PFty4eZJOIz1_oY4eRvzrhJ7q1vesYpBQZ-iH1d0ZfNuK1WzMLBv4FP75mGIMqtI-0L1xFDeNdtSpoG",
+        "",
     )
     nebius_base_url: str = os.getenv(
         "NEBIUS_BASE_URL",
@@ -48,7 +48,7 @@ class Settings:
     # -----------------------------------------------------------------------
     openrouter_api_key: str = os.getenv(
         "OPENROUTER_API_KEY",
-        "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",
+        "",
     )
     openrouter_base_url: str = os.getenv(
         "OPENROUTER_BASE_URL",
@@ -64,11 +64,11 @@ class Settings:
     # -----------------------------------------------------------------------
     tavily_api_key: str = os.getenv(
         "TAVILY_API_KEY",
-        "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",
+        "",
     )
     google_api_key: str = os.getenv(
         "GOOGLE_API_KEY",
-        "AIzaSyDvmo1NtnpiKZX7KVbruFLS4rI7SMijTCI",
+        "",
     )
     semantic_scholar_api_key: str = os.getenv("SEMANTIC_SCHOLAR_API_KEY", "")
     pubmed_email: str = os.getenv("PUBMED_EMAIL", "hooke-bio@users.noreply.github.com")
