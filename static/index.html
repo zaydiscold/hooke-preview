@@ -153,6 +153,13 @@
       background: rgba(15, 139, 95, 0.08);
       box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.32);
     }
+    .hero-signature {
+      margin-bottom: 16px;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(25, 24, 23, 0.54);
+    }
     .hero h1 {
       margin: 0;
       font-family: "Fraunces", serif;
@@ -580,10 +587,11 @@
       background: rgba(255, 250, 239, 0.85);
       box-shadow: var(--shadow);
       padding: 12px 14px;
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: center;
+      column-gap: 18px;
+      row-gap: 10px;
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.12em;
@@ -594,6 +602,9 @@
       align-items: center;
       gap: 10px;
     }
+    .footer-brand span {
+      min-width: 0;
+    }
     .footer-mark {
       width: 24px;
       height: 24px;
@@ -601,8 +612,34 @@
       display: block;
     }
     .site-footer strong { color: var(--fg); }
-    .site-footer span:last-child {
+    .footer-powered {
       color: var(--fg);
+      justify-self: end;
+      text-align: right;
+    }
+    .footer-credit {
+      justify-self: center;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      color: rgba(25, 24, 23, 0.78);
+      white-space: nowrap;
+    }
+    .footer-credit a,
+    .footer-credit a:visited {
+      color: rgba(25, 24, 23, 0.84);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(25, 24, 23, 0.32);
+      transition: color 140ms ease, border-color 140ms ease;
+    }
+    .footer-credit a[data-link="site"]:hover,
+    .footer-credit a[data-link="site"]:focus-visible {
+      color: #7a5cff;
+      border-color: rgba(122, 92, 255, 0.52);
+    }
+    .footer-credit a[data-link="twitter"]:hover,
+    .footer-credit a[data-link="twitter"]:focus-visible {
+      color: #1d9bf0;
+      border-color: rgba(29, 155, 240, 0.52);
     }
 
     ::-webkit-scrollbar {
@@ -625,6 +662,15 @@
       body { padding: 16px; }
       .grid { grid-template-columns: 1fr; }
       .hero h1 { max-width: 100%; }
+      .site-footer {
+        grid-template-columns: 1fr;
+        justify-items: center;
+      }
+      .footer-brand,
+      .footer-powered {
+        justify-self: center;
+        text-align: center;
+      }
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.4.2/3Dmol-min.js" defer></script>
@@ -637,6 +683,7 @@
         <div class="hero-kicker">Agent-orchestrated research assistant</div>
         <div class="hero-badge">Biology / chemistry / physics</div>
       </div>
+      <div class="hero-signature">by Zayd / cold</div>
       <h1><span class="hook-word" data-note="Robert Hooke gave the cell its name.">Hooke</span></h1>
       <p class="hero-copy">
         Built for <strong>researchers, experimentalists, and people at the bench</strong> who need a fast, objective way to turn a prompt into literature, relevant data, and experimental starting points across biological, molecular, chemical, and physical work.
@@ -699,9 +746,10 @@
           <circle cx="18" cy="40" r="2.5" fill="#191817"></circle>
           <circle cx="47" cy="41.5" r="2.5" fill="#191817"></circle>
         </svg>
-        <span><strong>Hooke Preview</strong> · research interface for bio, molecular, and hard science</span>
+        <span><strong>Hooke Preview</strong> · research interface for biology, chemistry, physics, and other hard sciences</span>
       </span>
-      <span>Powered by OpenRouter and Nebius</span>
+      <span class="footer-powered">Powered by Nebius and OpenRouter</span>
+      <span class="footer-credit"><a data-link="site" href="https://zayd.wtf" target="_blank" rel="noreferrer">zayd.wtf</a> · <a data-link="twitter" href="https://twitter.com/coldcooks" target="_blank" rel="noreferrer">@coldcooks</a></span>
     </footer>
   </div>
 
