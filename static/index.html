@@ -717,6 +717,14 @@
 
     let isStreaming = false;
     let streamCursorLine = null;
+    const API_BASE_URL = (() => {
+      const configured = window.HOOKE_API_BASE_URL || window.localStorage.getItem("hooke-api-base-url") || "";
+      return configured.replace(/\/$/, "");
+    })();
+
+    function apiUrl(path) {
+      return `${API_BASE_URL}${path}`;
+    }
 
     // ── Pipeline state ─────────────────────────────────────────────────────
     const PIPELINE_NODES = [
@@ -1088,7 +1096,7 @@
       setStreamingState(true);
 
       try {
-        const resp = await fetch("/api/investigate", {
+        const resp = await fetch(apiUrl("/api/investigate"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ query, prefer_cached: preferCached }),
@@ -1128,7 +1136,7 @@
       luckyBtn.classList.add("loading");
       luckyBtn.textContent = "GENERATING...";
       try {
-        const resp = await fetch("/api/lucky");
+        const resp = await fetch(apiUrl("/api/lucky"));
         if (!resp.ok) throw new Error("Lucky endpoint failed");
         const data = await resp.json();
         queryInput.value = data.question;
