@@ -965,12 +965,12 @@
 
       const structureUrl = genomic.structure_pdb_url || genomic.structure_cif_url;
       const format = genomic.structure_pdb_url ? "pdb" : "cif";
-      const viewer = window.$3Dmol.createViewer(viewerEl, { backgroundColor: "rgba(0,0,0,0)" });
+      const viewer = window.$3Dmol.createViewer(viewerEl, { backgroundColor: "#fff8eb" });
       fetch(structureUrl)
         .then((resp) => resp.text())
         .then((modelText) => {
           viewer.addModel(modelText, format);
-          viewer.setStyle({}, { cartoon: { colorscheme: "spectrum" } });
+          viewer.setStyle({}, { cartoon: { color: "#2a6f97" } });
           viewer.zoomTo();
           viewer.render();
         })
