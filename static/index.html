@@ -586,11 +586,11 @@
       border: var(--border);
       background: rgba(255, 250, 239, 0.85);
       box-shadow: var(--shadow);
-      padding: 12px 14px;
+      padding: 12px 16px;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1.7fr) auto minmax(240px, 1fr);
       align-items: center;
-      column-gap: 18px;
+      column-gap: 22px;
       row-gap: 10px;
       font-size: 11px;
       text-transform: uppercase;
@@ -600,10 +600,28 @@
     .footer-brand {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-    }
-    .footer-brand span {
+      gap: 12px;
       min-width: 0;
+    }
+    .footer-brand-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .footer-brand-title {
+      color: var(--fg);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+    .footer-brand-meta {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      line-height: 1.35;
+      color: rgba(25, 24, 23, 0.7);
+      max-width: 52ch;
     }
     .footer-mark {
       width: 24px;
@@ -616,17 +634,20 @@
       color: var(--fg);
       justify-self: end;
       text-align: right;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      white-space: nowrap;
     }
     .footer-credit {
       justify-self: center;
-      font-size: 10px;
-      letter-spacing: 0.16em;
-      color: rgba(25, 24, 23, 0.78);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      color: rgba(25, 24, 23, 0.72);
       white-space: nowrap;
     }
     .footer-credit a,
     .footer-credit a:visited {
-      color: rgba(25, 24, 23, 0.84);
+      color: rgba(25, 24, 23, 0.82);
       text-decoration: none;
       border-bottom: 1px solid rgba(25, 24, 23, 0.32);
       transition: color 140ms ease, border-color 140ms ease;
@@ -667,9 +688,17 @@
         justify-items: center;
       }
       .footer-brand,
-      .footer-powered {
+      .footer-powered,
+      .footer-credit {
         justify-self: center;
         text-align: center;
+      }
+      .footer-brand-copy {
+        align-items: center;
+      }
+      .footer-brand-title,
+      .footer-brand-meta {
+        white-space: normal;
       }
     }
   </style>
@@ -746,10 +775,13 @@
           <circle cx="18" cy="40" r="2.5" fill="#191817"></circle>
           <circle cx="47" cy="41.5" r="2.5" fill="#191817"></circle>
         </svg>
-        <span><strong>Hooke Preview</strong> · research interface for biology, chemistry, physics, and other hard sciences</span>
+        <span class="footer-brand-copy">
+          <span class="footer-brand-title"><strong>Hooke Preview</strong></span>
+          <span class="footer-brand-meta">Research interface for biology, chemistry, physics, and other hard sciences</span>
+        </span>
       </span>
-      <span class="footer-powered">Powered by Nebius and OpenRouter</span>
       <span class="footer-credit"><a data-link="site" href="https://zayd.wtf" target="_blank" rel="noreferrer">zayd.wtf</a> · <a data-link="twitter" href="https://twitter.com/coldcooks" target="_blank" rel="noreferrer">@coldcooks</a></span>
+      <span class="footer-powered">Powered by Nebius and OpenRouter</span>
     </footer>
   </div>
 
