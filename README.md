@@ -1,25 +1,43 @@
 # Hooke
 
-![GitHub last commit](https://img.shields.io/github/last-commit/zaydiscold/hooke-preview)
-![GitHub Repo stars](https://img.shields.io/github/stars/zaydiscold/hooke-preview?style=flat)
-![Status](https://img.shields.io/badge/status-preview-475569)
-![Python](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/backend-FastAPI-009688?logo=fastapi&logoColor=white)
-![Frontend](https://img.shields.io/badge/frontend-HTML%2FCSS%2FJS-f59e0b)
-![Streaming](https://img.shields.io/badge/streaming-SSE-0f172a)
+<p align="center">agent-orchestrated research assistant for hard-science questions.</p>
+
+<p align="center">
+  <img src="https://img.shields.io/github/last-commit/zaydiscold/hooke-preview?style=flat-square&labelColor=1a1a2e&color=B4A7D6" alt="last commit" />
+  <img src="https://img.shields.io/github/stars/zaydiscold/hooke-preview?style=flat-square&labelColor=1a1a2e&color=5F9EA0" alt="stars" />
+  <img src="https://img.shields.io/badge/status-preview-D4AF37?style=flat-square&labelColor=1a1a2e" alt="status" />
+  <img src="https://img.shields.io/badge/python-3.11%2B-B4A7D6?style=flat-square&labelColor=1a1a2e" alt="python" />
+  <img src="https://img.shields.io/badge/streaming-sse-5F9EA0?style=flat-square&labelColor=1a1a2e" alt="streaming" />
+</p>
+
+<p align="center">
+  <a href="#overview">overview</a> ·
+  <a href="#what-the-app-does">what the app does</a> ·
+  <a href="#run-locally">run locally</a> ·
+  <a href="#example-questions">example questions</a>
+</p>
 
 Hooke is an agent-orchestrated research assistant for hard-science questions.
-It runs a FastAPI backend, retrieves evidence from scientific and web sources,
-optionally adds genomic follow-up, and returns a citation-grounded research
-brief in a streaming interface.
+It retrieves evidence from scientific and web sources, optionally adds genomic
+follow-up, and returns a citation-grounded research brief in a streaming
+interface.
+
+The repository contains a local research workflow for questions that need
+source collection, synthesis, and explicit next-step reasoning.
+
+<p align="center">
+  <a href="./video/out/hooke-promo.mp4">
+    <img src="./assets/hooke-demo.gif" width="900" alt="hooke demo" />
+  </a>
+</p>
+
+<p align="center"><sub>click the gif for the full remotion video.</sub></p>
 
 ## Overview
 
-This repository contains a local research workflow for questions that need
-source collection, synthesis, and explicit next-step reasoning. A user submits
-a question, Hooke classifies the request into one of three investigation modes,
-runs the relevant agents, and streams both intermediate logs and the final
-brief to the browser.
+A user submits a question, Hooke classifies the request into one of three
+investigation modes, runs the relevant agents, and streams both intermediate
+logs and the final brief to the browser.
 
 ## What the app does
 
@@ -112,3 +130,35 @@ Keep these constraints in mind when you run the app:
 - Prompt-injection evaluation is not implemented yet. Promptfoo is a planned
   addition for future prompt-injection testing and security review.
 - Generated cache files remain local and are excluded from git.
+
+<br>
+<br>
+
+<p align="center">
+  <a href="https://star-history.com/#zaydiscold/hooke-preview&Date">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=zaydiscold/hooke-preview&type=Date&theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=zaydiscold/hooke-preview&type=Date" />
+      <img src="https://api.star-history.com/svg?repos=zaydiscold/hooke-preview&type=Date&theme=dark" width="320" alt="star history chart" />
+    </picture>
+  </a>
+</p>
+
+<br>
+<br>
+
+<p align="left"><strong>zayd / cold</strong></p>
+
+<p align="center">
+  <a href="https://zayd.wtf">zayd.wtf</a> · <a href="https://x.com/coldcooks">twitter</a> · <a href="https://github.com/zaydiscold">github</a>
+  <br>
+  <em>icarus only fell because he flew</em>
+</p>
+
+<p align="right">
+  <strong>to do</strong><br>
+  <sub>
+  ☑ streaming brief and pipeline logs<br>
+  ☐ prompt-injection eval coverage (promptfoo)
+  </sub>
+</p>

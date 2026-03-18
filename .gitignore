@@ -12,3 +12,8 @@ HOOKE_PREVIEW_SPEC_V2.md
 *.pyo
 *.pyd
 .DS_Store
+assets/hooke-demo-palette.png
+video/node_modules/
+video/assets/
+video/.DS_Store
+video/public/.DS_Store
