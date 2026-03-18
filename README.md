@@ -1,4 +1,8 @@
-# Hooke
+<p align="center">
+  <img src="./assets/banner.svg" alt="hooke banner" />
+</p>
+
+<h1 align="center">hooke</h1>
 
 <p align="center">agent-orchestrated research assistant for hard-science questions.</p>
 
@@ -31,13 +35,33 @@ source collection, synthesis, and explicit next-step reasoning.
   </a>
 </p>
 
-<p align="center"><sub>click the gif for the full remotion video.</sub></p>
+<p align="center"><sub>click the gif for the full demo video.</sub></p>
+
+<br>
+<br>
+
+<p align="center">
+  <img src="./assets/stars1.svg" alt="·" />
+</p>
+
+<br>
+<br>
 
 ## Overview
 
 A user submits a question, Hooke classifies the request into one of three
 investigation modes, runs the relevant agents, and streams both intermediate
 logs and the final brief to the browser.
+
+<br>
+<br>
+
+<p align="center">
+  <img src="./assets/stars2.svg" alt="·" />
+</p>
+
+<br>
+<br>
 
 ## What the app does
 
@@ -55,6 +79,16 @@ Hooke provides these capabilities:
   experiments, and citations.
 - Generates compact lucky-mode starter queries for exploratory research.
 
+<br>
+<br>
+
+<p align="center">
+  <img src="./assets/stars3.svg" alt="·" />
+</p>
+
+<br>
+<br>
+
 ## Architecture
 
 The application is split into a small number of focused components:
@@ -68,6 +102,16 @@ The application is split into a small number of focused components:
 - `static/index.html`: single-page interface for queries, logs, and research
   briefs.
 - `health_check.py`: provider and API connectivity checks.
+
+<br>
+<br>
+
+<p align="center">
+  <img src="./assets/stars4.svg" alt="·" />
+</p>
+
+<br>
+<br>
 
 ## Requirements
 
@@ -89,6 +133,16 @@ The environment file must define these variables:
 - `SEMANTIC_SCHOLAR_API_KEY` for higher Semantic Scholar rate limits
 - `PUBMED_EMAIL`
 
+<br>
+<br>
+
+<p align="center">
+  <img src="./assets/stars5.svg" alt="·" />
+</p>
+
+<br>
+<br>
+
 ## Run locally
 
 Start the development server with Uvicorn:
@@ -98,6 +152,16 @@ uvicorn main:app --reload --port 8000
 ```
 
 Then open [http://127.0.0.1:8000](http://127.0.0.1:8000).
+
+<br>
+<br>
+
+<p align="center">
+  <img src="./assets/stars6.svg" alt="·" />
+</p>
+
+<br>
+<br>
 
 ## Health check
 
@@ -109,6 +173,16 @@ python3 health_check.py
 
 This script verifies whether the configured providers are reachable.
 
+<br>
+<br>
+
+<p align="center">
+  <img src="./assets/stars7.svg" alt="·" />
+</p>
+
+<br>
+<br>
+
 ## Example questions
 
 These prompts match the current demo flow:
@@ -119,6 +193,16 @@ These prompts match the current demo flow:
    digest milk while others cannot?
 3. Why do some people get severe kidney disease, and what genes are involved?
 4. What makes some cancer tumors resistant to PD-1 or PD-L1 immunotherapy?
+
+<br>
+<br>
+
+<p align="center">
+  <img src="./assets/stars8.svg" alt="·" />
+</p>
+
+<br>
+<br>
 
 ## Operational notes
 
@@ -147,6 +231,13 @@ Keep these constraints in mind when you run the app:
 <br>
 <br>
 
+<p align="center">
+  <img src="./assets/stars9.svg" alt="·" />
+</p>
+
+<br>
+<br>
+
 <p align="left"><strong>zayd / cold</strong></p>
 
 <p align="center">
@@ -161,4 +252,13 @@ Keep these constraints in mind when you run the app:
   ☑ streaming brief and pipeline logs<br>
   ☐ prompt-injection eval coverage (promptfoo)
   </sub>
+</p>
+
+<br>
+<br>
+<br>
+<br>
+
+<p align="center">
+  <img src="./assets/wisps.svg" alt="" />
 </p>
